@@ -21,13 +21,13 @@ public class App
      * This file is used by the {@link DataLoader#loadItemsFromCsv(String)}
      * method to load a list of items into the application.
      */
-    private static final String ITEMS_FILE_CSV = "src/dataFiles/artigos.csv";
+    private static final String ITEMS_FILE_CSV = "project/src/dataFiles/artigos.csv";
     /**
      * The filename and path for the CSV file that contains machine data.
      * This file is expected to be located in the 'src/dataFiles' directory and named 'maquinas.csv'.
      * It is used by the DataLoader class to load machine information into the application.
      */
-    private static final String MACHINES_FILE_CSV = "src/dataFiles/maquinas.csv";
+    private static final String MACHINES_FILE_CSV = "project/src/dataFiles/maquinas.csv";
 
     public static void main( String[] args )
     {
