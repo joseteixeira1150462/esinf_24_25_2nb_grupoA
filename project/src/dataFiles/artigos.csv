@@ -13,20 +13,20 @@ it11,Medium,OperacaoW,OperacaoX,OperacaoY
 it12,Low,OperacaoZ,,
 it13,High,OperacaoAA,OperacaoBB,OperacaoCC
 it14,Medium,OperacaoDD,,
-it15,Low,OperacaoEE,OperacaoFF,
-it16,High,OperacaoGG,OperacaoHH,OperacaoII
-it17,Medium,OperacaoJJ,OperacaoKK,
-it18,Low,OperacaoLL,,
-it19,High,OperacaoMM,OperacaoNN,
-it20,Medium,OperacaoOO,OperacaoPP,OperacaoQQ
-it21,Low,OperacaoRR,,
-it22,High,OperacaoSS,OperacaoTT,
-it23,Medium,OperacaoUU,,
-it24,Low,OperacaoVV,OperacaoWW,OperacaoXX
-it25,High,OperacaoYY,OperacaoZZ,
-it26,Medium,OperacaoAAA,,
-it27,Low,OperacaoBBB,OperacaoCCC,
-it28,High,OperacaoDDD,,
-it29,Medium,OperacaoEEE,OperacaoFFF,
-it30,Low,OperacaoGGG,OperacaoHHH, ,
+it15,Low,OperacaoA,OperacaoAA,
+it16,High,OperacaoJ,OperacaoBB,OperacaoCC
+it17,Medium,OperacaoDD,OperacaoU,
+it18,Low,OperacaoAA,,
+it19,High,OperacaoG,OperacaoCC,
+it20,Medium,OperacaoJ,OperacaoZ,OperacaoAA
+it21,Low,OperacaoR,,
+it22,High,OperacaoS,OperacaoT,
+it23,Medium,OperacaoU,OperacaoJ,
+it24,Low,OperacaoV,OperacaoB,OperacaoAA
+it25,High,OperacaoY,OperacaoQ,
+it26,Medium,OperacaoAA,OperacaoA,
+it27,Low,OperacaoBB,OperacaoCC,
+it28,High,OperacaoDD,,
+it29,Medium,OperacaoE,OperacaoAA,
+it30,Low,OperacaoG,OperacaoDD, ,
 ;

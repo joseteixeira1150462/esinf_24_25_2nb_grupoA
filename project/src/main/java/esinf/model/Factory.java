@@ -1,7 +1,6 @@
 package esinf.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * The Factory class represents a manufacturing plant that manages a list of items and a list of machines.
@@ -78,4 +77,40 @@ public class Factory {
     public void setMachines(List<Machine> machines) {
         this.machines = machines;
     }
+
+    public Map<String,Integer> calculateTotalProductionInMinutes(List<Item> items) {
+        //Basic condition
+        if(items.isEmpty() || !(items.equals(this.items))) {
+            return null;
+        }
+        Map<String,Integer> reportTotalCostForItem = new HashMap<>(); //dummy way to sort the map by key
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+        for(Item item : items) {
+            String key = item.getId();
+            int totalProductionCostByItem = 0;
+
+            for(Machine machine : this.machines) {
+                //Verificar se a máquina executa uma operação do item
+                if(item.getOperations().contains(machine.getOperationName().trim())) {
+                    totalProductionCostByItem += machine.getTime(); // Acumula o tempo da máquina
+                }
+            }
+
+            reportTotalCostForItem.put(key, totalProductionCostByItem);
+
+        }
+        // Ordenar as chaves numericamente com base no número após "it"
+        reportTotalCostForItem.entrySet()
+                .stream()
+                .sorted((entry1,entry2)->{
+                    // Extrair o número da string "it"
+                    int num1= Integer.parseInt(entry1.getKey().substring(2));
+                    int num2 = Integer.parseInt(entry2.getKey().substring(2));
+                    return Integer.compare(num1,num2);
+                })
+                .forEachOrdered(entry -> sortedMap.put(entry.getKey(), entry.getValue())); // Adiciona no LinkedHashMap ordenado
+
+        return sortedMap;
+    }
+
 }
