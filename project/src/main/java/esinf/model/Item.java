@@ -107,7 +107,7 @@ public class Item {
      * @param operation The operation to be added to the item's list of operations.
      */
     public void addOperation(String operation) {
-        this.operations.add(operation);
+        this.operations.add(operation.trim());
     }
 
     /**
