@@ -4,7 +4,9 @@ import esinf.model.Factory;
 import esinf.model.Item;
 import esinf.model.Machine;
 import esinf.utils.DataLoader;
+import esinf.utils.Pair;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,9 +81,11 @@ public class App {
         System.out.println("\n====== Sprint1 --- USEI03 - Report of the total production time");
         System.out.printf("%n%-12s %s%n", "Item ID", "Total production time (min)");
         System.out.println("--------------------------------------------------------");
+        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalProductionInMinutes(factory.getItems());
 
-        factory.calculateTotalProductionInMinutes(factory.getItems()).forEach((key, value) ->
-                System.out.printf("%-12s %d%n", key, value)
-        );
+
+        for (Pair<String, Integer> pair : totalProductionTimeReport) {
+            System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
+        }
     }
 }

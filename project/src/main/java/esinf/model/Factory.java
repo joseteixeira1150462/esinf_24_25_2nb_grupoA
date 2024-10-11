@@ -1,11 +1,13 @@
 package esinf.model;
 
+import esinf.utils.Pair;
+
 import java.util.*;
 
 /**
- * The Factory class represents a manufacturing plant that manages a list of items and a list of machines.
- * It allows the user to get and set these lists through various methods, as well as initialize the factory
- * with predefined lists of items and machines.
+ * The Factory class is responsible for managing a list of items and a list of machines.
+ * It provides functionalities to initialize the factory with these lists, retrieve and update them,
+ * as well as to calculate and sort production related data.
  */
 public class Factory {
 
@@ -78,13 +80,25 @@ public class Factory {
         this.machines = machines;
     }
 
-    public Map<String,Integer> calculateTotalProductionInMinutes(List<Item> items) {
-        //Basic condition
+
+    /**
+     * Calculates the total production time in minutes for each item in the provided list.
+     * Each item's total production time is accumulated based on the operations it requires
+     * and the machines available that can perform those operations.
+     *
+     * @param items a list of items for which the total production time needs to be calculated
+     * @return a list of pairs, where each pair contains the item ID as a string and the total production time in minutes as an integer.
+     *         If the provided items list is empty or does not match the factory's items list, an empty list is returned.
+     * Time Complexity : O(n^2) (bubbleSortListByItemID complexity predominance)
+     * Space Complexity : O(1)
+     */
+    public List<Pair<String,Integer>> calculateTotalProductionInMinutes(List<Item> items) {
+        //Basic condition --
         if(items.isEmpty() || !(items.equals(this.items))) {
-            return null;
+            return Collections.emptyList();
         }
-        Map<String,Integer> reportTotalCostForItem = new HashMap<>(); //dummy way to sort the map by key
-        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+       List<Pair<String,Integer>> productionList = new ArrayList<>();
+
         for(Item item : items) {
             String key = item.getId();
             int totalProductionCostByItem = 0;
@@ -96,21 +110,43 @@ public class Factory {
                 }
             }
 
-            reportTotalCostForItem.put(key, totalProductionCostByItem);
+            productionList.add(new Pair<>(key, totalProductionCostByItem));
 
         }
-        // Ordenar as chaves numericamente com base no número após "it"
-        reportTotalCostForItem.entrySet()
-                .stream()
-                .sorted((entry1,entry2)->{
-                    // Extrair o número da string "it"
-                    int num1= Integer.parseInt(entry1.getKey().substring(2));
-                    int num2 = Integer.parseInt(entry2.getKey().substring(2));
-                    return Integer.compare(num1,num2);
-                })
-                .forEachOrdered(entry -> sortedMap.put(entry.getKey(), entry.getValue())); // Adiciona no LinkedHashMap ordenado
 
-        return sortedMap;
+        //Reverter a ordem da lista, para garantir que a ordenação ascendente do metodo bubbleSortListByItemID funcione.
+        Collections.reverse(productionList);
+        bubbleSortListByItemID(productionList);
+
+        return productionList;
     }
+
+    /**
+     * Sorts a list of pairs using the bubble sort algorithm based on the numerical part of the item ID.
+     * The item ID is assumed to be a string that starts with two characters followed by a number.
+     *
+     * @param list the list of pairs to be sorted, where each pair consists of a string ID and an integer value.
+     * Time Complexity: O(n^2)
+     * Space Complexity : O(1)
+     */
+    private void bubbleSortListByItemID(List<Pair<String, Integer>> list) {
+        int n = list.size();
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                int num1 = Integer.parseInt(list.get(j).getFirst().substring(2));
+                int num2 = Integer.parseInt(list.get(j + 1).getFirst().substring(2));
+
+                // Compara os números extraídos
+                if (num1 > num2) {
+                    // Troca os elementos se estiverem na ordem errada
+                    Pair<String, Integer> temp = list.get(j);
+                    list.set(j, list.get(j + 1));
+                    list.set(j + 1, temp);
+                }
+            }
+        }
+    }
+
 
 }
