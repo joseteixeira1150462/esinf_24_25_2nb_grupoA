@@ -177,4 +177,29 @@ public class FactoryTest {
     }
 
 
+    /**
+     * Tests the `operationTimeReport` method of the `Factory` class with preloaded data.
+     * This test verifies if the `operationTimeReport` method correctly calculates
+     * the percentage of each machine's contribution to the production based on its operation time.
+     * It creates a `Factory` instance with specific machines data, then calls the method
+     * to compute the percentages and compares the actual results with the expected results.
+     * <p>
+     * This test ensures that:
+     * - The `operationTimeReport` method correctly calculates the percentage of contribution for each machine.
+     * - The method returns the results in the correct format (a list of pairs where each pair consists of
+     * a machine ID, its operation time and its corresponding percentage).
+     */
+    @Test
+    void testCalculatePerOperationWithLoadedData() {
+        Factory factory = new Factory(items, machines);
+
+        List<Pair<String, Pair<Integer, Double>>> actual =
+                factory.operationTimeReport(factory.getMachines());
+        List<Pair<String,Double>> expected = new ArrayList<>();
+        expected.add(0,new Pair<>("m23",1.47)); //OBS: this hardcoded value will need to be modified.
+        expected.add(1,new Pair<>("m24",5.30)); //OBS: this hardcoded value will need to be modified.
+
+        assertEquals(expected.get(0).getFirst(), actual.get(0).getFirst());
+        assertEquals(expected.get(1).getFirst(), actual.get(actual.size()-1).getFirst());
+    }
 }

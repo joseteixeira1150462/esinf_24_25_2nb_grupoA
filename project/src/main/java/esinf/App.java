@@ -6,6 +6,7 @@ import esinf.model.Machine;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
 
+import java.sql.SQLOutput;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,11 +43,11 @@ public class App {
         List<Machine> machines = DataLoader.loadMachinesFromCsv(MACHINES_CSV_FILE_PATH);
 
         if (items.isEmpty()) {
-            System.err.println("No items loaded. Please check the CSV file.");
+            System.err.println("No items loaded. Please check the CSV file path.");
             return;
         }
         if (machines.isEmpty()) {
-            System.err.println("No machines loaded. Please check the CSV file.");
+            System.err.println("No machines loaded. Please check the CSV path.");
             return;
         }
 
@@ -56,6 +57,7 @@ public class App {
 
         printFactoryDetails(factory);
         printProductionReport(factory);
+        printExecutionReport(factory);
     }
 
     /**
@@ -88,4 +90,30 @@ public class App {
             System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
         }
     }
+
+    private static void printExecutionReport(Factory factory) {
+        System.out.println("\n====== Sprint1 --- USEI05 - Report of the execution time rate, sorted by percentage");
+        System.out.printf("%-12s | %-18s | %-15s%n", "Machine ID", "Execution Time (min)", "% Execution Time");
+        System.out.println("------------------------------------------------------------");
+
+        List<Pair<String, Pair<Integer, Double>>> percentageContribution = factory.operationTimeReport(factory.getMachines());
+
+        for (Pair<String, Pair<Integer, Double>> pair : percentageContribution) {
+            System.out.printf("%-12s | %-20d | %-15.2f%n",
+                    pair.getFirst(),
+                    pair.getSecond().getFirst(),
+                    pair.getSecond().getSecond());
+        }
+        int n = percentageContribution.size();
+        System.out.println("\nTotal Execution Time: "+factory.totalExecutionTime() +" min");
+        System.out.printf("Machine with the highest contribution to execution time percentage: %s (%.2f%%)%n",
+                percentageContribution.get(n - 1).getFirst(),
+                percentageContribution.get(n - 1).getSecond().getSecond());
+
+        System.out.printf("Machine with the lowest contribution to execution time percentage: %s (%.2f%%)%n",
+                percentageContribution.get(0).getFirst(),
+                percentageContribution.get(0).getSecond().getSecond());
+        System.out.println("============================== X ================================");
+    }
+
 }

@@ -89,7 +89,7 @@ public class Factory {
      * @param items a list of items for which the total production time needs to be calculated
      * @return a list of pairs, where each pair contains the item ID as a string and the total production time in minutes as an integer.
      *         If the provided items list is empty or does not match the factory's items list, an empty list is returned.
-     * Time Complexity : O(n^2) (bubbleSortListByItemID complexity predominance)
+     * Time Complexity : O(n^2) (bubbleSortListByID complexity predominance)
      * Space Complexity : O(1)
      */
     public List<Pair<String,Integer>> calculateTotalProductionInMinutes(List<Item> items) {
@@ -106,7 +106,7 @@ public class Factory {
             for(Machine machine : this.machines) {
                 //Verificar se a máquina executa uma operação do item
                 if(item.getOperations().contains(machine.getOperationName().trim())) {
-                    totalProductionCostByItem += machine.getTime(); // Acumula o tempo da máquina
+                    totalProductionCostByItem += machine.getTime();
                 }
             }
 
@@ -114,11 +114,75 @@ public class Factory {
 
         }
 
-        //Reverter a ordem da lista, para garantir que a ordenação ascendente do metodo bubbleSortListByItemID funcione.
+        //Reverter a ordem da lista, para garantir que a ordenação ascendente do metodo bubbleSortListByID funcione.
         Collections.reverse(productionList);
-        bubbleSortListByItemID(productionList);
+        bubbleSortListByID(productionList);
 
         return productionList;
+    }
+
+
+    /**
+     * Generates a report on the operation times for a list of machines.
+     * Each machine's execution time and its percentage contribution to the total execution time
+     * are included in the report.
+     *
+     * @param machines the list of Machine objects for which the report is generated
+     * @return a list of pairs, where each pair contains a machine ID as a string and another pair.
+     *         The nested pair consists of the execution time of the machine (integer) and its
+     *         percentage contribution to the total execution time (double).
+     *         If the provided machines list is empty or does not match the factory's machines list,
+     *         an empty list is returned.
+     */
+    public List<Pair<String,Pair<Integer,Double>>> operationTimeReport(List<Machine> machines) {
+        if (machines.isEmpty() || !(machines.equals(this.machines))) {
+            return Collections.emptyList();
+        }
+
+        List<Pair<String,Pair<Integer,Double>>> percentageContList = new ArrayList<>();
+        int totalExecutionTime = calculateFullExecutionTime(machines);
+        double percentContribution;
+
+        for (Machine machine : machines) {
+            String machineId = machine.getId();
+            int executionTime = machine.getTime();
+            percentContribution = ((double) machine.getTime() / totalExecutionTime) * 100;
+            percentageContList.add(new Pair<>(machineId, new Pair<>(executionTime,percentContribution)));
+        }
+
+        bubbleSortListByPercentage(percentageContList);
+
+        return percentageContList;
+    }
+
+    /**
+     * Calculates the total execution time for all the machines in this factory.
+     *
+     * @return the total execution time in minutes for all the machines in the factory.
+     */
+    public int totalExecutionTime() {
+        return calculateFullExecutionTime(this.machines);
+    }
+
+
+    /**
+     * Calculates the total execution time for the given list of machines.
+     *
+     * @param machines a list of Machine objects for which the total execution time needs to be calculated
+     * @return the total execution time in minutes for all machines in the list; returns 0 if the list is empty or does not match the factory's machines list
+     */
+    private int calculateFullExecutionTime(List<Machine> machines) {
+        if(machines.isEmpty()|| !(machines.equals(this.machines))) {
+            return 0;
+        }
+
+        int fullExecutionTime = 0;
+        for(Machine machine : machines) {
+            int time = machine.getTime();
+            fullExecutionTime += time;
+
+        }
+        return fullExecutionTime;
     }
 
     /**
@@ -129,18 +193,19 @@ public class Factory {
      * Time Complexity: O(n^2)
      * Space Complexity : O(1)
      */
-    private void bubbleSortListByItemID(List<Pair<String, Integer>> list) {
+
+    private <U> void bubbleSortListByID(List<Pair<String,U>> list) {
         int n = list.size();
 
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i - 1; j++) {
+                // Extrai o número contido no id, ignorando o prefixo 'it'
                 int num1 = Integer.parseInt(list.get(j).getFirst().substring(2));
                 int num2 = Integer.parseInt(list.get(j + 1).getFirst().substring(2));
 
                 // Compara os números extraídos
                 if (num1 > num2) {
-                    // Troca os elementos se estiverem na ordem errada
-                    Pair<String, Integer> temp = list.get(j);
+                    Pair<String, U> temp = list.get(j);
                     list.set(j, list.get(j + 1));
                     list.set(j + 1, temp);
                 }
@@ -148,5 +213,32 @@ public class Factory {
         }
     }
 
+
+    /**
+     * Sorts a list of pairs using the bubble sort algorithm based on the second value of the nested pair.
+     * The second value in the nested pair is assumed to implement the {@link Comparable} interface for ordering.
+     *
+     * @param list the list of pairs to be sorted, where each pair contains a first element of type U and
+     *             a second element which is a pair of types K and T. The sorting is done based on the T value
+     *             within the nested pair.
+     * Time Complexity: O(n^2)
+     * Space Complexity : O(1)
+     */
+    private <U,K,T extends Comparable<T>> void bubbleSortListByPercentage(List<Pair<U, Pair<K, T>>> list) {
+        int n = list.size();
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                Pair<K, T> second1 = list.get(j).getSecond();
+                Pair<K, T> second2 = list.get(j + 1).getSecond();
+
+                if (second1.getSecond().compareTo(second2.getSecond()) > 0) {
+                    Pair<U, Pair<K, T>> temp = list.get(j);
+                    list.set(j, list.get(j + 1));
+                    list.set(j + 1, temp);
+                }
+            }
+        }
+    }
 
 }
