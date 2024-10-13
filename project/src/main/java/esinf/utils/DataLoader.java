@@ -44,8 +44,8 @@ public class DataLoader {
                     continue; // Ignorar linhas incompletas
                 }
 
-                String id = values[0]; //id_item
-                String priority = values[1]; //priority
+                String id = values[0].trim(); //id_item
+                String priority = values[1].trim(); //priority
                 List<String> operations = new ArrayList<>();
 
                 // Adicionar as operações não vazias à lista
@@ -87,8 +87,8 @@ public class DataLoader {
                     continue; // Ignorar linhas incompletas
                 }
 
-                String id = values[0];
-                String operationName = values[1];
+                String id = values[0].trim();
+                String operationName = values[1].trim();
                 int time = Integer.parseInt(values[2].trim()); //time in minutes
 
                 machines.add(new Machine(id, operationName, time));
