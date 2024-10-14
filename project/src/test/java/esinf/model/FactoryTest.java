@@ -56,16 +56,13 @@ public class FactoryTest {
 
     /**
      * Tests the `calculateTotalProductionInMinutes` method of the `Factory` class with preloaded data.
-     *
      * This test verifies if the `calculateTotalProductionInMinutes` method correctly calculates
      * the total production time for each item based on the loaded data (items and machines).
      * It creates a `Factory` instance with specific items and machines data, then calls the method
      * to compute the total production time and compares the actual results with the expected results.
-     *
      * Expected results are predefined and represent the sum of operation times for each item.
      * Each item has a series of operations, each with an associated time, and the expected result
      * for each item is the sum of these times.
-     *
      * This test ensures that:
      * - The `calculateTotalProductionInMinutes` method correctly sums the operation times for each item.
      * - The method returns the results in the correct format (a list of pairs where each pair consists of
@@ -121,7 +118,6 @@ public class FactoryTest {
      * Tests the `calculateTotalProductionInMinutes` method of the `Factory` class
      * when provided with an empty list of items. The method is expected to return
      * an empty list of production pairs.
-     *
      * This test initializes a `Factory` instance with an empty list of items
      * and a predefined list of machines. It then calls the
      * `calculateTotalProductionInMinutes` method with an empty list of items
@@ -193,8 +189,7 @@ public class FactoryTest {
     void testCalculatePerOperationWithLoadedData() {
         Factory factory = new Factory(items, machines);
 
-        List<Pair<String, Pair<Integer, Double>>> actual =
-                factory.operationTimeReport(factory.getMachines());
+        List<Pair<String, Pair<Integer, Double>>> actual = factory.operationTimeReport(factory.getMachines());
         List<Pair<String,Double>> expected = new ArrayList<>();
         expected.add(0,new Pair<>("m23",1.47)); //OBS: this hardcoded value will need to be modified.
         expected.add(1,new Pair<>("m24",5.30)); //OBS: this hardcoded value will need to be modified.
@@ -202,4 +197,228 @@ public class FactoryTest {
         assertEquals(expected.get(0).getFirst(), actual.get(0).getFirst());
         assertEquals(expected.get(1).getFirst(), actual.get(actual.size()-1).getFirst());
     }
+
+    /**
+     * Tests the `recordMachineProcessingFlow` method of the `Factory` class.
+     * This test verifies that the machine processing flow is recorded correctly
+     * based on the loaded data (items and machines).
+     * The expected output is a map where the keys are machine IDs and the values
+     * are maps of item IDs and the count of operations performed on each item.
+     */
+    @Test
+    void testRecordMachineProcessingFlow() {
+        Factory factory = new Factory(items, machines);
+
+        Map<String, Map<String, Integer>> actual = factory.recordMachineProcessingFlow();
+
+        // Define the expected result based on the provided flow data.
+        Map<String, Map<String, Integer>> expected = new HashMap<>();
+
+        Map<String, Integer> m10Flow = new HashMap<>();
+        m10Flow.put("m26", 1);
+        m10Flow.put("m28", 1);
+        m10Flow.put("m11", 1);
+        m10Flow.put("m21", 1);
+        expected.put("m10", m10Flow);
+
+        Map<String, Integer> m1Flow = new HashMap<>();
+        m1Flow.put("m27", 2);
+        m1Flow.put("m2", 1);
+        expected.put("m1", m1Flow);
+
+        Map<String, Integer> m7Flow = new HashMap<>();
+        m7Flow.put("m29", 1);
+        m7Flow.put("m8", 1);
+        m7Flow.put("m30", 1);
+        expected.put("m7", m7Flow);
+
+        Map<String, Integer> m28Flow = new HashMap<>();
+        m28Flow.put("m29", 3);
+        expected.put("m28", m28Flow);
+
+        Map<String, Integer> m2Flow = new HashMap<>();
+        m2Flow.put("m3", 1);
+        m2Flow.put("m22", 1);
+        expected.put("m2", m2Flow);
+
+        Map<String, Integer> m21Flow = new HashMap<>();
+        m21Flow.put("m30", 1);
+        m21Flow.put("m22", 1);
+        expected.put("m21", m21Flow);
+
+        Map<String, Integer> m19Flow = new HashMap<>();
+        m19Flow.put("m20", 2);
+        expected.put("m19", m19Flow);
+
+        Map<String, Integer> m4Flow = new HashMap<>();
+        m4Flow.put("m5", 1);
+        expected.put("m4", m4Flow);
+
+        Map<String, Integer> m5Flow = new HashMap<>();
+        m5Flow.put("m27", 1);
+        expected.put("m5", m5Flow);
+
+        Map<String, Integer> m8Flow = new HashMap<>();
+        m8Flow.put("m9", 1);
+        expected.put("m8", m8Flow);
+
+        Map<String, Integer> m22Flow = new HashMap<>();
+        m22Flow.put("m27", 1);
+        expected.put("m22", m22Flow);
+
+        Map<String, Integer> m24Flow = new HashMap<>();
+        m24Flow.put("m25", 1);
+        expected.put("m24", m24Flow);
+
+        Map<String, Integer> m12Flow = new HashMap<>();
+        m12Flow.put("m13", 1);
+        expected.put("m12", m12Flow);
+
+        Map<String, Integer> m23Flow = new HashMap<>();
+        m23Flow.put("m24", 1);
+        expected.put("m23", m23Flow);
+
+        Map<String, Integer> m26Flow = new HashMap<>();
+        m26Flow.put("m27", 1);
+        expected.put("m26", m26Flow);
+
+        Map<String, Integer> m15Flow = new HashMap<>();
+        m15Flow.put("m16", 1);
+        expected.put("m15", m15Flow);
+
+        Map<String, Integer> m14Flow = new HashMap<>();
+        m14Flow.put("m15", 1);
+        expected.put("m14", m14Flow);
+
+        Map<String, Integer> m17Flow = new HashMap<>();
+        m17Flow.put("m25", 1);
+        expected.put("m17", m17Flow);
+
+        Map<String, Integer> m27Flow = new HashMap<>();
+        m27Flow.put("m28", 1);
+        expected.put("m27", m27Flow);
+
+        Map<String, Integer> m18Flow = new HashMap<>();
+        m18Flow.put("m19", 1);
+        expected.put("m18", m18Flow);
+
+        // Compare the actual result with the expected result.
+        assertEquals(expected, actual);
+    }
+
+
+    /**
+     * Tests the `totalExecutionTime` method of the `Factory` class.
+     * This test verifies if the total execution time across all machines is calculated correctly.
+     * Expected total execution time is defined based on your knowledge of the CSV data.
+     */
+    @Test
+    void testTotalExecutionTime() {
+        Factory factory = new Factory(items, machines);
+
+        int actual = factory.totalExecutionTime();
+        int expected = 3395; // Substitua pelo valor total de execução esperado
+
+        assertEquals(expected, actual);
+    }
+
+
+    /**
+     * Tests the `trackItemMachineSequence` method of the `Factory` class.
+     * This test verifies if the `trackItemMachineSequence` method correctly tracks
+     * the sequence of machines for each item based on the loaded data.
+     * It creates a `Factory` instance with specific items and machines data,
+     * then calls the method to compute the sequences and compares the actual results
+     * with the expected results.
+     * Expected results are predefined mappings of item IDs to lists of machine IDs.
+     */
+    @Test
+    void testTrackItemMachineSequence() {
+        Factory factory = new Factory(items, machines);
+
+        Map<String, List<String>> actual = factory.trackItemMachineSequence();
+
+        Map<String, List<String>> expected = new HashMap<>();
+        expected.put("it1", Arrays.asList("m1", "m2", "m3"));
+        expected.put("it2", Arrays.asList("m4", "m5"));
+        expected.put("it3", Collections.singletonList("m6"));
+        expected.put("it4", Arrays.asList("m7", "m8", "m9"));
+        expected.put("it5", Arrays.asList("m10", "m11"));
+        expected.put("it6", Arrays.asList("m12", "m13"));
+        expected.put("it7", Arrays.asList("m14", "m15", "m16"));
+        expected.put("it8", Collections.singletonList("m17"));
+        expected.put("it9", Arrays.asList("m18", "m19", "m20"));
+        expected.put("it10", Arrays.asList("m21", "m22"));
+        expected.put("it11", Arrays.asList("m23", "m24", "m25"));
+        expected.put("it12", Collections.singletonList("m26"));
+        expected.put("it13", Arrays.asList("m27", "m28", "m29"));
+        expected.put("it14", Collections.singletonList("m30"));
+        expected.put("it15", Arrays.asList("m1", "m27"));
+        expected.put("it16", Arrays.asList("m10", "m28", "m29"));
+        expected.put("it17", Arrays.asList("m21", "m30"));
+        expected.put("it18", Collections.singletonList("m27"));
+        expected.put("it19", Arrays.asList("m7", "m29"));
+        expected.put("it20", Arrays.asList("m10", "m26", "m27"));
+        expected.put("it21", Collections.singletonList("m18"));
+        expected.put("it22", Arrays.asList("m19", "m20"));
+        expected.put("it23", Arrays.asList("m10", "m21"));
+        expected.put("it24", Arrays.asList("m2", "m22", "m27"));
+        expected.put("it25", Arrays.asList("m17", "m25"));
+        expected.put("it26", Arrays.asList("m1", "m27"));
+        expected.put("it27", Arrays.asList("m28", "m29"));
+        expected.put("it28", Collections.singletonList("m30"));
+        expected.put("it29", Arrays.asList("m5", "m27"));
+        expected.put("it30", Arrays.asList("m7", "m30"));
+
+        // Compare actual and expected maps
+        for (String key : expected.keySet()) {
+            assertEquals(expected.get(key), actual.get(key));
+        }
+    }
+
+
+    /**
+     * Tests the `getSortedMachineProcessingFlow` method of the `Factory` class.
+     * This test verifies that the machine processing flow is sorted correctly based on item processing.
+     * The expected sorted flow is defined based on your knowledge of the CSV data.
+     */
+    @Test
+    void testGetSortedMachineProcessingFlow() {
+        Factory factory = new Factory(items, machines);
+
+        Map<String, Map<String, Integer>> unsortedFlow = factory.recordMachineProcessingFlow();
+
+        Map<String, Map<String, Integer>> sortedFlow = factory.getSortedMachineProcessingFlow(unsortedFlow);
+        String actualFirstKey = sortedFlow.keySet().iterator().next();
+        String expectedFirstKey = "m10";
+
+
+        assertEquals(expectedFirstKey, actualFirstKey);
+    }
+
+
+    /**
+     * Tests the {@link Factory#displayMachineWithMostFlowDependency(Map)} method.
+     * It verifies that the machine with the most flow dependency is correctly identified.
+     * The test creates a factory with predefined items and machines, calculates the machine flow map,
+     * and checks that the machine with the most transitions (flow dependencies) is correctly returned.
+     * In this test case, the machine "m10" is expected to have the most flow dependencies with a total of 4 transitions.
+     * Expected result:
+     * - Machine ID "m10" with 4 transitions.
+     * The test compares the actual result from the method with the expected result using {@code assertEquals}.
+     */
+    @Test
+    void testDisplayMachineWithMostFlowDependency() {
+        // Create the factory and display the machine with the most flow dependency
+        Factory factory = new Factory(items,machines);
+
+        Map<String, Map<String, Integer>> machineFlowMap = factory.recordMachineProcessingFlow() ;
+
+        List<Pair<String,Integer>> actual = factory.displayMachineWithMostFlowDependency(machineFlowMap);
+        List<Pair<String, Integer>> expected = new ArrayList<>();
+        expected.add(new Pair<>("m10",4)); //m10 : [(m26,1),(m28,1),(m11,1),(m21,1)] (4 transitions)
+
+        assertEquals(expected, actual);
+    }
+
 }
