@@ -6,8 +6,6 @@ import esinf.model.Machine;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
 
-import java.sql.SQLOutput;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +19,7 @@ public class App {
      * This file is expected to have entries representing
      * items with their respective identifier, priority, and list of operations.
      */
-    private static final String ITEMS_CSV_FILE_PATH = "src/dataFiles/artigos.csv";
+    private static final String ITEMS_CSV_FILE_PATH = "project/src/dataFiles/artigos.csv";
     /**
      * The file path to the CSV file containing machine data.
      * This constant is used when loading machine information
@@ -29,7 +27,7 @@ public class App {
      * represents a machine with attributes such as an identifier,
      * operation name, and execution time.
      */
-    private static final String MACHINES_CSV_FILE_PATH = "src/dataFiles/maquinas.csv";
+    private static final String MACHINES_CSV_FILE_PATH = "project/src/dataFiles/maquinas.csv";
 
     /**
      * The main method serves as the entry point of the application.
@@ -58,6 +56,9 @@ public class App {
         printFactoryDetails(factory);
         printProductionReport(factory);
         printExecutionReport(factory);
+        printOperationTimeReport(factory);
+
+
     }
 
     /**
@@ -114,6 +115,20 @@ public class App {
                 percentageContribution.get(0).getFirst(),
                 percentageContribution.get(0).getSecond().getSecond());
         System.out.println("============================== X ================================");
+    }
+
+
+    //US4
+    private static void printOperationTimeReport(Factory factory) {
+        System.out.println("\n====== Sprint1 --- USEI04 - Report of the total production time");
+        System.out.printf("%n%-12s %s%n", "Operation", "Total operation time (min)");
+        System.out.println("--------------------------------------------------------");
+        List<Pair<String, Integer>> totalOroductionTimeReport = factory.calculateTotalOperationTimeInMinutes();
+
+
+        for (Pair<String, Integer> pair : totalOroductionTimeReport) {
+            System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
+        }
     }
 
 }

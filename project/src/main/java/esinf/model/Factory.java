@@ -23,6 +23,8 @@ public class Factory {
     private List<Machine> machines;
 
 
+
+
     /**
      * Constructs a new Factory instance with empty lists for items and machines.
      * This no-argument constructor initializes the factory to have an empty
@@ -31,6 +33,8 @@ public class Factory {
     public Factory() {
         this.items = new ArrayList<>();
         this.machines = new ArrayList<>();
+
+
     }
 
     /**
@@ -42,6 +46,7 @@ public class Factory {
     public Factory(List<Item> items, List<Machine> machines) {
         this.items = items;
         this.machines = machines;
+
     }
 
     /**
@@ -163,6 +168,45 @@ public class Factory {
     public int totalExecutionTime() {
         return calculateFullExecutionTime(this.machines);
     }
+
+
+
+    //US4
+    /**
+     * US4 - Calculates the total execution time for each operation in the factory.
+     *
+     * This method iterates over all available machines, checks the operations they perform,
+     * and sums the total time spent on each operation. The result is a list of pairs where
+     * the first element is the operation name and the second is the total time in minutes.
+     *
+     * @return a list of pairs (operation name, total time in minutes) for each operation performed in the factory.
+     *         Returns an empty list if no machines are available.
+     */
+    public List<Pair<String, Integer>> calculateTotalOperationTimeInMinutes() {
+        if (this.machines.isEmpty()) {
+        return Collections.emptyList();
+        }
+
+    List<Pair<String, Integer>> operationTimeList = new ArrayList<>();
+
+        for (Machine machine : this.machines) {
+        String operationName = machine.getOperationName();
+        int totalTimeForOperation = 0;
+
+        for (Item item : this.items) {
+            if (item.getOperations().contains(operationName)) {
+                totalTimeForOperation += machine.getTime();
+            }
+        }
+
+        operationTimeList.add(new Pair<>(operationName, totalTimeForOperation));
+        }
+
+        return operationTimeList;
+    }
+
+
+
 
 
     /**
