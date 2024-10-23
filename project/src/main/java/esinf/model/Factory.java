@@ -214,6 +214,8 @@ public class Factory {
      *
      * @return a list of pairs (operation name, total time in minutes) for each operation performed in the factory.
      *         Returns an empty list if no machines are available.
+     * Time Complexity: O(m * n), where m is the number of machines and n is the number of items
+     * Space Complexity: O(m * n)
      */
     public List<Pair<String, Integer>> calculateTotalOperationTimeInMinutes() {
         if (this.machines.isEmpty()) {
