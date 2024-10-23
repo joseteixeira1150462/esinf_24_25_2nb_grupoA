@@ -215,7 +215,7 @@ public class App {
 
     //US4
     private static void printOperationTimeReport(Factory factory) {
-        System.out.println("\n====== Sprint1 --- USEI04 - Report of the total production time");
+        System.out.println("\n====== Sprint1 --- USEI04 - Report of the total operation time");
         System.out.printf("%n%-12s %s%n", "Operation", "Total operation time (min)");
         System.out.println("--------------------------------------------------------");
         List<Pair<String, Integer>> totalOroductionTimeReport = factory.calculateTotalOperationTimeInMinutes();
