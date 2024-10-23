@@ -56,9 +56,12 @@ public class App {
 
         printFactoryDetails(factory); //USEI01
         printProductionReport(factory); //USEI03
+        printOperationTimeReport(factory);//USEI04
         printExecutionReport(factory); //USEI05
         printRecordMachineProcessingFlow(factory); //USEI07
+        
         //USEI08 missing
+
     }
 
     /**
@@ -208,5 +211,19 @@ public class App {
 
 
 
+
+
+    //US4
+    private static void printOperationTimeReport(Factory factory) {
+        System.out.println("\n====== Sprint1 --- USEI04 - Report of the total production time");
+        System.out.printf("%n%-12s %s%n", "Operation", "Total operation time (min)");
+        System.out.println("--------------------------------------------------------");
+        List<Pair<String, Integer>> totalOroductionTimeReport = factory.calculateTotalOperationTimeInMinutes();
+
+
+        for (Pair<String, Integer> pair : totalOroductionTimeReport) {
+            System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
+        }
+    }
 
 }
