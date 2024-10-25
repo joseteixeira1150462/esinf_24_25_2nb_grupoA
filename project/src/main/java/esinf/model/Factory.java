@@ -166,6 +166,8 @@ public class Factory {
      *         percentage contribution to the total execution time (double).
      *         If the provided machines list is empty or does not match the factory's machines list,
      *         an empty list is returned.
+     * Time Complexity: O(n^2) (due to bubble sort)
+     * Space Complexity: O(1)
      */
     public List<Pair<String,Pair<Integer,Double>>> operationTimeReport(List<Machine> machines) {
         if (machines.isEmpty() || !(machines.equals(this.machines))) {
@@ -189,6 +191,37 @@ public class Factory {
     }
 
     /**
+     * Records the flow of machine processing by tracking how items move between machines.
+     *
+     * @return a sorted map where the key is the machine ID and the value is another map,
+     *         which contains the next machine and the count of transitions.
+     * Time Complexity: O(m * n), where m is the number of items and n is the average number of operations per item
+     * Space Complexity: O(m * n)
+     */
+    public Map<String, Map<String, Integer>> recordMachineProcessingFlow() {
+        Map<String, List<String>> itemMachineFlowMap = trackItemMachineSequence();
+        Map<String, Map<String, Integer>> machineFlowMap = new HashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : itemMachineFlowMap.entrySet()) {
+            List<String> machineSequence = entry.getValue();
+
+            for (int i = 0; i < machineSequence.size() - 1; i++) {
+
+                String currentMachineId = machineSequence.get(i);
+                String nextMachineId = machineSequence.get(i + 1);
+
+                machineFlowMap.putIfAbsent(currentMachineId, new HashMap<>());
+                Map<String, Integer> transitions = machineFlowMap.get(currentMachineId);
+
+
+                transitions.put(nextMachineId, transitions.getOrDefault(nextMachineId, 0) + 1);
+            }
+        }
+        return getSortedMachineProcessingFlow(machineFlowMap);
+    }
+
+
+    /**
      * Calculates the total execution time for all the machines in this factory.
      *
      * @return the total execution time in minutes for all the machines in the factory.
@@ -209,6 +242,8 @@ public class Factory {
      *
      * @return a list of pairs (operation name, total time in minutes) for each operation performed in the factory.
      *         Returns an empty list if no machines are available.
+     * Time Complexity: O(m * n), where m is the number of machines and n is the number of items
+     * Space Complexity: O(m * n)
      */
     public List<Pair<String, Integer>> calculateTotalOperationTimeInMinutes() {
         if (this.machines.isEmpty()) {
@@ -380,6 +415,8 @@ public class Factory {
      *
      * @param machines a list of Machine objects for which the total execution time needs to be calculated
      * @return the total execution time in minutes for all machines in the list; returns 0 if the list is empty or does not match the factory's machines list
+     * Time Complexity: O(n), where n is the number of machines
+     * Space Complexity: O(1)
      */
     private int calculateFullExecutionTime(List<Machine> machines) {
         if(machines.isEmpty()|| !(machines.equals(this.machines))) {
@@ -432,7 +469,7 @@ public class Factory {
      *             a second element which is a pair of types K and T. The sorting is done based on the T value
      *             within the nested pair.
      * Time Complexity: O(n^2)
-     * Space Complexity : O(1)
+     * Space Complexity: O(1)
      */
     private <U,K,T extends Comparable<T>> void bubbleSortListByPercentage(List<Pair<U, Pair<K, T>>> list) {
         int n = list.size();
@@ -450,5 +487,116 @@ public class Factory {
             }
         }
     }
+
+    /**
+     * Tracks the sequence of machines that process each item based on the operations required by the item.
+     * For each item, it creates a list of machine IDs that can perform the operations listed in the item.
+     *
+     * @return a map where the key is the item ID and the value is a list of machine IDs that can process the item.
+     *         Each machine is responsible for executing one or more operations required by the item.
+     * Time Complexity: O(m * n), where m is the number of items and n is the number of machines.
+     * Space Complexity: O(m * k), where k is the average number of operations per item.
+     */
+    public Map<String,List<String>> trackItemMachineSequence(){
+        Map<String,List<String>> itemMachineFlowMap = new HashMap<>();
+        for(Item item : items) {
+            List<String> operations = item.getOperations();
+            List<String> machineIds = new ArrayList<>();
+            for(Machine machine : machines) {
+                if(operations.contains(machine.getOperationName().trim())) {
+                    machineIds.add(machine.getId());
+                }
+            }
+                    itemMachineFlowMap.put(item.getId(), machineIds);
+        }
+        return itemMachineFlowMap;
+    }
+
+    /**
+     * Sorts a map of machine processing flow based on the total number of transitions.
+     *
+     * @param unsorted the unsorted map where the key is the machine ID and the value is another map of transitions
+     * @return a sorted map where the machines with the most transitions appear first
+     * Time Complexity: O(n^2), where n is the number of machines
+     * Space Complexity: O(1)
+     */
+    public Map<String, Map<String, Integer>> getSortedMachineProcessingFlow(Map<String, Map<String, Integer>> unsorted) {
+
+        Map<String, Integer> transitionCount = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, Integer>> entry : unsorted.entrySet()) {
+            String machineId = entry.getKey();
+            int totalTransitions = 0;
+
+            for (Integer count : entry.getValue().values()) {
+                totalTransitions += count;
+            }
+
+            transitionCount.put(machineId, totalTransitions);
+        }
+
+        // array containing sorted machines by transition
+        String[] sortedMachines = new String[transitionCount.size()];
+        int index = 0;
+
+        for (String machineId : transitionCount.keySet()) {
+            sortedMachines[index++] = machineId; // stores id on array
+        }
+
+        //Bubble sort machines in reverse order of occurrences number
+        for (int i = 0; i < sortedMachines.length - 1; i++) {
+            for (int j = 0; j < sortedMachines.length - 1 - i; j++) {
+                if (transitionCount.get(sortedMachines[j]) < transitionCount.get(sortedMachines[j + 1])) {
+                    String temp = sortedMachines[j];
+                    sortedMachines[j] = sortedMachines[j + 1];
+                    sortedMachines[j + 1] = temp;
+                }
+            }
+        }
+
+        //Final map with sorted data
+        Map<String, Map<String, Integer>> sortedFlowMap = new LinkedHashMap<>();
+
+        for (String machineId : sortedMachines) {
+            sortedFlowMap.put(machineId, unsorted.get(machineId));
+        }
+
+        return sortedFlowMap;
+    }
+
+    /**
+     * Displays the machine with the highest flow dependency, i.e., the machine that has
+     * the most transitions from other machines.
+     *
+     * @param machineFlowMap a map where the key is the machine ID and the value is another map of transitions
+     * @return a list containing a single pair, where the key is the machine ID and the value is the number of transitions
+     * Time Complexity: O(n), where n is the number of machines
+     * Space Complexity: O(1)
+     */
+    public List<Pair<String,Integer>> displayMachineWithMostFlowDependency(Map<String, Map<String, Integer>> machineFlowMap) {
+        String maxMachineId = "";
+        int maxTransitions = 0;
+
+        for (Map.Entry<String, Map<String, Integer>> entry : machineFlowMap.entrySet()) {
+            String machineId = entry.getKey();
+            int totalTransitions = 0;
+
+            // Count transitions
+            for (int count : entry.getValue().values()) {
+                totalTransitions += count;
+            }
+
+            // Updating maxTransitions if there's more transitions to register
+            if (totalTransitions > maxTransitions) {
+                maxTransitions = totalTransitions;
+                maxMachineId = machineId;
+            }
+        }
+
+        List<Pair<String, Integer>> list = new ArrayList<>();
+        list.add(new Pair<>(maxMachineId, maxTransitions));
+        return list;
+    }
+
 
 }
