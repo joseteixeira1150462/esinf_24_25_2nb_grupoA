@@ -55,8 +55,10 @@ public class App {
 
         printFactoryDetails(factory);
         printProductionReport(factory);
-        printExecutionReport(factory);
         printOperationTimeReport(factory);
+        printExecutionReport(factory);
+        runProcessingSimulation(factory);
+
 
 
     }
@@ -129,6 +131,13 @@ public class App {
         for (Pair<String, Integer> pair : totalOroductionTimeReport) {
             System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
         }
+    }
+
+    //US8
+    private static void runProcessingSimulation(Factory factory) {
+        System.out.println("\n====== US8 - Simulação de Processamento por Prioridade ======");
+        factory.runSimulation(); // Chama o método de simulação da classe Factory
+        System.out.println("============================== Fim da Simulação ==============================");
     }
 
 }
