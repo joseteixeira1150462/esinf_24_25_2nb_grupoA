@@ -22,6 +22,31 @@ public class Factory {
      */
     private List<Machine> machines;
 
+    /**
+     * A map to manage the available machines for each operation.
+     * Key: Operation name (e.g., "OperA") -> Value: Queue of machines (e.g., [mac1, mac2, mac3])
+     * Example:
+     * K: OperA -> V: [mac1, mac2, mac3]
+     * K: OperB -> V: [mac3, mac4, mac5]
+     */
+    private Map<String,Queue<Machine>> availableMachines;
+
+    /**
+     * A map to manage the operation queues for each operation.
+     * Key: Operation name (e.g., "OperA") -> Value: Queue of items to be processed (e.g., [item1, item2, item3])
+     * K: OperA -> V: [item1, item2, item3]
+     * K: OperB -> V: [item4, item2, item5]
+     */
+    private Map<String, Queue<Item>> operationQueues;
+
+    /**
+     * A map to track the progress of each item during the simulation.
+     * Key: Item -> Value: Index of the current operation being processed for the item.
+     * This map helps to know which operation each item is currently in.
+     */
+    private Map<Item, Integer> itemProgress;
+
+
 
 
 
@@ -33,8 +58,9 @@ public class Factory {
     public Factory() {
         this.items = new ArrayList<>();
         this.machines = new ArrayList<>();
-
-
+        this.availableMachines = new HashMap<>();
+        this.operationQueues = new HashMap<>();
+        this.itemProgress = new HashMap<>();
     }
 
     /**
@@ -46,8 +72,9 @@ public class Factory {
     public Factory(List<Item> items, List<Machine> machines) {
         this.items = items;
         this.machines = machines;
-
     }
+
+
 
     /**
      * Retrieves the list of items managed by the factory.
@@ -84,6 +111,7 @@ public class Factory {
     public void setMachines(List<Machine> machines) {
         this.machines = machines;
     }
+
 
 
     /**
@@ -240,7 +268,145 @@ public class Factory {
         return operationTimeList;
     }
 
+    //US8
+    //Executa a simulação
+    /**
+     * Runs the simulation process. It manages the execution of operations based on the available machines,
+     * item priorities, and operation queues. The simulation processes items operation by operation,
+     * assigning available machines to items, and advancing the clock based on operation completion times.
+     * Time Complexity: O(p + o log o), where p is the number of operations and o is the total number of operations performed.
+     * Space Complexity: O(m + k + o), where m is the number of items, k is the number of machines, and o is the number of operations.
+     */
+    public void runSimulation() {
 
+        if (this.machines.size() == 0 || this.items.size() == 0)
+            return;
+
+        initializeAvailableMachines();
+        initializeOperationQueues();
+
+        Queue<RunOperation> sequence = new PriorityQueue<>(Comparator.comparingInt(RunOperation::getEndTime));
+
+        int clock = 1;
+        boolean operBeingExecuted = true;
+
+        Map<Item, Integer> itemEndTimes = new HashMap<>();
+
+        while (operBeingExecuted) {
+
+            for (String operation : operationQueues.keySet()) {
+                Queue<Item> items = operationQueues.get(operation);
+
+                while (items.peek() != null) {
+                    Machine machine = availableMachines.get(operation).poll();
+                    if (machine == null)
+                        break;
+                    Item item = items.poll();
+
+                    RunOperation runOper = new RunOperation(operation, machine, item, clock);
+                    sequence.add(runOper);
+                    runOper.start();
+                }
+
+            }
+
+            while (sequence.peek() != null && sequence.peek().getEndTime() <= clock) {
+
+                RunOperation endingOpr = sequence.poll();
+                endingOpr.end();
+                availableMachines.get(endingOpr.getOperationName()).add(endingOpr.getMachine());
+
+                Item item = endingOpr.getItem();
+                itemEndTimes.put(item, endingOpr.getEndTime());
+
+                int currentOperationIndex = itemProgress.get(item);
+                if (currentOperationIndex + 1 < item.getOperations().size()) {
+                    operationQueues.get(item.getOperations().get(currentOperationIndex + 1)).add(item);
+                    itemProgress.put(item, currentOperationIndex + 1);
+                }
+            }
+
+            if (sequence.size() == 0)
+                operBeingExecuted = false;
+            else
+                clock += sequence.peek().getEndTime();
+        }
+
+        calculateTotalTimeForItems(itemEndTimes);
+    }
+
+    /**
+     * Calculates the total time each item took to complete all its operations.
+     * The total time is determined by subtracting 1 (start time) from the end time of the last operation.
+     *
+     * @param itemEndTimes a map where the key is the item and the value is the end time of its last operation.
+     * Time Complexity: O(m), where m is the number of items.
+     * Space Complexity: O(m), as it requires storage for the itemEndTimes map.
+     */
+    public void calculateTotalTimeForItems(Map<Item, Integer> itemEndTimes) {
+        LinkedHashMap<Item, Integer> sortedMapById = new LinkedHashMap<>(itemEndTimes);
+
+        for (Item item : sortedMapById.keySet()) {
+            int totalTime = sortedMapById.get(item) - 1;
+            System.out.println("Item " + item.getId() + " levou um total de " + totalTime + " minutos para completar todas as operações.");
+        }
+    }
+
+    /**
+     * Initializes the operation queues (operationQueues) associated with each operation.
+     * Items are organized by priority and added to the queue for the corresponding operation.
+     * Time Complexity: O(m + n), where m is the number of items and n is the number of machines.
+     * Space Complexity: O(m + p), where m is the number of items and p is the number of operations.
+     */
+    private void initializeOperationQueues() {
+
+        this.operationQueues = new HashMap<String, Queue<Item>>();
+
+        for (Machine machine : this.machines) {
+            String operation = machine.getOperationName();
+            operationQueues.putIfAbsent(operation, new PriorityQueue<Item>(Comparator.comparing(Item::getPriority, this::comparePriority)));
+        }
+
+        for (Item item : items) {
+            List<String> operations = item.getOperations();
+            if (operations == null || operations.isEmpty()) {
+                System.err.println("Erro: o item " + item.getId() + " não possui operações definidas.");
+            }
+
+            operationQueues.get(operations.get(0)).add(item);
+            itemProgress.put(item, 0);
+        }
+    }
+
+    /**
+     * Initializes the queues of available machines (availableMachines) for each operation.
+     * Machines are prioritized by their processing time.
+     * Time Complexity: O(n), where n is the number of machines.
+     * Space Complexity: O(n), as it requires storage for all machines in the availableMachines map.
+     */
+    private void initializeAvailableMachines() {
+        availableMachines = new HashMap<>();
+        for (Machine machine : this.machines) {
+            String operation = machine.getOperationName();
+            availableMachines.putIfAbsent(operation, new PriorityQueue<Machine>(Comparator.comparingInt(Machine::getTime)));
+            availableMachines.get(operation).add(machine);
+        }
+    }
+
+    /**
+     * Compares the priority levels of two items (High, Medium, Low) for correct ordering.
+     *
+     * @param priority1 The priority level of the first item.
+     * @param priority2 The priority level of the second item.
+     * @return A negative integer, zero, or a positive integer if the first priority is higher,
+     *         equal to, or lower than the second priority.
+     * Time Complexity: O(1), as the list of priorities has a fixed length.
+     * Space Complexity: O(1).
+     */
+    private int comparePriority(String priority1, String priority2) {
+        List<String> priorities = Arrays.asList("High", "Medium", "Low");
+        return Integer.compare(priorities.indexOf(priority1), priorities.indexOf(priority2));
+    }
 
 
 

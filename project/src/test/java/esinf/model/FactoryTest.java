@@ -4,6 +4,7 @@ import esinf.utils.DataLoader;
 import esinf.utils.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.*;
 
@@ -196,6 +197,96 @@ public class FactoryTest {
 
         assertEquals(expected.get(0).getFirst(), actual.get(0).getFirst());
         assertEquals(expected.get(1).getFirst(), actual.get(actual.size()-1).getFirst());
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class with preloaded data.
+     *
+     * This test verifies if the `calculateTotalOperationTimeInMinutes` method correctly calculates
+     * the total time spent on each operation based on the loaded data (machines and items).
+     * It creates a `Factory` instance with specific items and machines data, then calls the method
+     * to compute the total time for each operation and compares the actual results with the expected results.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithLoadedData() {
+        Factory factory = new Factory(items, machines);
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        List<Pair<String, Integer>> expected = Arrays.asList(
+                new Pair<>("OperacaoA", 360),  // OperacaoA (120 min * 3 items)
+                new Pair<>("OperacaoB", 160),   // OperacaoB (80 min * 2 item)
+                new Pair<>("OperacaoC", 90),   // OperacaoC (90 min * 1 item)
+                new Pair<>("OperacaoD", 130),  // OperacaoD (130 min * 1 item)
+                new Pair<>("OperacaoE", 120),   // OperacaoE (60 min * 2 item)
+                new Pair<>("OperacaoF", 150)   // OperacaoF (150 min * 1 item)
+        );
+
+        // Verifica se cada operação está correta
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i).getFirst(), actual.get(i).getFirst());
+            assertEquals(expected.get(i).getSecond(), actual.get(i).getSecond());
+        }
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class
+     * with an empty list of machines. The method is expected to return an empty list of results.
+     *
+     * This test initializes a `Factory` instance with an empty list of machines
+     * and a predefined list of items. It then calls the
+     * `calculateTotalOperationTimeInMinutes` method and asserts that the returned list is empty.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithNoMachines() {
+        Factory factory = new Factory(items, new ArrayList<>()); // Máquinas vazias
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        // Verifica se a lista retornada está vazia
+        assertTrue(actual.isEmpty());
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class
+     * with an empty list of items. The method is expected to return a list of operations with 0 time.
+     *
+     * This test initializes a `Factory` instance with an empty list of items and a predefined list of machines.
+     * It then calls the `calculateTotalOperationTimeInMinutes` method and checks that the time for all operations is 0.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithNoItems() {
+        Factory factory = new Factory(new ArrayList<>(), machines); // Itens vazios
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        // Verifica se o tempo para cada operação é 0
+        for (Pair<String, Integer> pair : actual) {
+            assertEquals(0, (int) pair.getSecond());
+        }
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class
+     * with items that have no operations. The method is expected to return 0 time for all operations.
+     *
+     * This test initializes a `Factory` instance with items that don't have any operations
+     * and checks that the total time for operations remains 0.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithItemsHavingNoOperations() {
+        List<Item> emptyOperationItems = Arrays.asList(
+                new Item("it1", "High", new ArrayList<>()),  // Sem operações
+                new Item("it2", "Low", new ArrayList<>())    // Sem operações
+        );
+        Factory factory = new Factory(emptyOperationItems, machines);
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        // Verifica se o tempo para cada operação é 0
+        for (Pair<String, Integer> pair : actual) {
+            assertEquals(0, (int) pair.getSecond());
+        }
     }
 
     /**
@@ -420,5 +511,6 @@ public class FactoryTest {
 
         assertEquals(expected, actual);
     }
+
 
 }
