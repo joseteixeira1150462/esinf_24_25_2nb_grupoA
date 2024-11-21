@@ -5,22 +5,26 @@ import esinf.utils.Pair;
 import java.util.*;
 
 /**
- * The Factory class is responsible for managing a list of items and a list of machines.
+ * The Factory class is responsible for managing a list of articles and a list of machines.
  * It provides functionalities to initialize the factory with these lists, retrieve and update them,
  * as well as to calculate and sort production related data.
  */
 public class Factory {
 
     /**
-     * A list of items that are managed by the Factory.
+     * A list of articles that are managed by the Factory.
      * Each item represents an element with its own identifier, priority, and a list of operations.
      */
-    private List<Item> items;
+    private List<Article> articles;
     /**
      * A list of Machine objects managed by the Factory.
      * Each Machine represents a piece of equipment with a unique ID, operation name, and operation time.
      */
     private List<Machine> machines;
+
+    private List<Item> items;
+
+    private List<Operation> operations;
 
     /**
      * A map to manage the available machines for each operation.
@@ -33,30 +37,30 @@ public class Factory {
 
     /**
      * A map to manage the operation queues for each operation.
-     * Key: Operation name (e.g., "OperA") -> Value: Queue of items to be processed (e.g., [item1, item2, item3])
+     * Key: Operation name (e.g., "OperA") -> Value: Queue of articles to be processed (e.g., [item1, item2, item3])
      * K: OperA -> V: [item1, item2, item3]
      * K: OperB -> V: [item4, item2, item5]
      */
-    private Map<String, Queue<Item>> operationQueues;
+    private Map<String, Queue<Article>> operationQueues;
 
     /**
      * A map to track the progress of each item during the simulation.
-     * Key: Item -> Value: Index of the current operation being processed for the item.
+     * Key: Article -> Value: Index of the current operation being processed for the item.
      * This map helps to know which operation each item is currently in.
      */
-    private Map<Item, Integer> itemProgress;
+    private Map<Article, Integer> itemProgress;
 
 
 
 
 
     /**
-     * Constructs a new Factory instance with empty lists for items and machines.
+     * Constructs a new Factory instance with empty lists for articles and machines.
      * This no-argument constructor initializes the factory to have an empty
-     * ArrayList for both items and machines.
+     * ArrayList for both articles and machines.
      */
     public Factory() {
-        this.items = new ArrayList<>();
+        this.articles = new ArrayList<>();
         this.machines = new ArrayList<>();
         this.availableMachines = new HashMap<>();
         this.operationQueues = new HashMap<>();
@@ -64,25 +68,32 @@ public class Factory {
     }
 
     /**
-     * Constructs a new Factory instance with specified lists of items and machines.
+     * Constructs a new Factory instance with specified lists of articles and machines.
      *
-     * @param items the list of items to be managed by the factory
+     * @param articles the list of articles to be managed by the factory
      * @param machines the list of machines to be used by the factory
      */
-    public Factory(List<Item> items, List<Machine> machines) {
-        this.items = items;
+    public Factory(List<Article> articles, List<Machine> machines) {
+        this.articles = articles;
         this.machines = machines;
+    }
+
+    public Factory(List<Article> articles, List<Machine> machines,List<Item> items, List<Operation> operations) {
+        this.articles = articles;
+        this.machines = machines;
+        this.items = items;
+        this.operations = operations;
     }
 
 
 
     /**
-     * Retrieves the list of items managed by the factory.
+     * Retrieves the list of articles managed by the factory.
      *
-     * @return the list of items
+     * @return the list of articles
      */
-    public List<Item> getItems() {
-        return items;
+    public List<Article> getArticles() {
+        return articles;
     }
 
     /**
@@ -95,12 +106,12 @@ public class Factory {
     }
 
     /**
-     * Sets the list of items for this factory.
+     * Sets the list of articles for this factory.
      *
-     * @param items the list of items to be set
+     * @param articles the list of articles to be set
      */
-    public void setItems(List<Item> items) {
-        this.items = items;
+    public void setArticles(List<Article> articles) {
+        this.articles = articles;
     }
 
     /**
@@ -112,33 +123,47 @@ public class Factory {
         this.machines = machines;
     }
 
+    public List<Item> getItems() {
+        return items;
+    }
 
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    public List<Operation> getOperations() {
+        return operations;
+    }
+
+    public void setOperations(List<Operation> operations) {
+        this.operations = operations;
+    }
 
     /**
      * Calculates the total production time in minutes for each item in the provided list.
      * Each item's total production time is accumulated based on the operations it requires
      * and the machines available that can perform those operations.
      *
-     * @param items a list of items for which the total production time needs to be calculated
+     * @param articles a list of articles for which the total production time needs to be calculated
      * @return a list of pairs, where each pair contains the item ID as a string and the total production time in minutes as an integer.
-     *         If the provided items list is empty or does not match the factory's items list, an empty list is returned.
+     *         If the provided articles list is empty or does not match the factory's articles list, an empty list is returned.
      * Time Complexity : O(n^2) (bubbleSortListByID complexity predominance)
      * Space Complexity : O(1)
      */
-    public List<Pair<String,Integer>> calculateTotalProductionInMinutes(List<Item> items) {
+    public List<Pair<String,Integer>> calculateTotalProductionInMinutes(List<Article> articles) {
         //Basic condition --
-        if(items.isEmpty() || !(items.equals(this.items))) {
+        if(articles.isEmpty() || !(articles.equals(this.articles))) {
             return Collections.emptyList();
         }
        List<Pair<String,Integer>> productionList = new ArrayList<>();
 
-        for(Item item : items) {
-            String key = item.getId();
+        for(Article article : articles) {
+            String key = article.getId();
             int totalProductionCostByItem = 0;
 
             for(Machine machine : this.machines) {
-                //Verificar se a máquina executa uma operação do item
-                if(item.getOperations().contains(machine.getOperationName().trim())) {
+                //Verificar se a máquina executa uma operação do article
+                if(article.getOperations().contains(machine.getOperationName().trim())) {
                     totalProductionCostByItem += machine.getTime();
                 }
             }
@@ -191,11 +216,11 @@ public class Factory {
     }
 
     /**
-     * Records the flow of machine processing by tracking how items move between machines.
+     * Records the flow of machine processing by tracking how articles move between machines.
      *
      * @return a sorted map where the key is the machine ID and the value is another map,
      *         which contains the next machine and the count of transitions.
-     * Time Complexity: O(m * n), where m is the number of items and n is the average number of operations per item
+     * Time Complexity: O(m * n), where m is the number of articles and n is the average number of operations per item
      * Space Complexity: O(m * n)
      */
     public Map<String, Map<String, Integer>> recordMachineProcessingFlow() {
@@ -242,7 +267,7 @@ public class Factory {
      *
      * @return a list of pairs (operation name, total time in minutes) for each operation performed in the factory.
      *         Returns an empty list if no machines are available.
-     * Time Complexity: O(m * n), where m is the number of machines and n is the number of items
+     * Time Complexity: O(m * n), where m is the number of machines and n is the number of articles
      * Space Complexity: O(m * n)
      */
     public List<Pair<String, Integer>> calculateTotalOperationTimeInMinutes() {
@@ -256,8 +281,8 @@ public class Factory {
         String operationName = machine.getOperationName();
         int totalTimeForOperation = 0;
 
-        for (Item item : this.items) {
-            if (item.getOperations().contains(operationName)) {
+        for (Article article : this.articles) {
+            if (article.getOperations().contains(operationName)) {
                 totalTimeForOperation += machine.getTime();
             }
         }
@@ -272,14 +297,14 @@ public class Factory {
     //Executa a simulação
     /**
      * Runs the simulation process. It manages the execution of operations based on the available machines,
-     * item priorities, and operation queues. The simulation processes items operation by operation,
-     * assigning available machines to items, and advancing the clock based on operation completion times.
+     * item priorities, and operation queues. The simulation processes articles operation by operation,
+     * assigning available machines to articles, and advancing the clock based on operation completion times.
      * Time Complexity: O(p + o log o), where p is the number of operations and o is the total number of operations performed.
-     * Space Complexity: O(m + k + o), where m is the number of items, k is the number of machines, and o is the number of operations.
+     * Space Complexity: O(m + k + o), where m is the number of articles, k is the number of machines, and o is the number of operations.
      */
     public void runSimulation() {
 
-        if (this.machines.size() == 0 || this.items.size() == 0)
+        if (this.machines.size() == 0 || this.articles.size() == 0)
             return;
 
         initializeAvailableMachines();
@@ -290,22 +315,22 @@ public class Factory {
         int clock = 1;
         boolean operBeingExecuted = true;
 
-        Map<Item, Integer> itemEndTimes = new HashMap<>();
+        Map<Article, Integer> itemEndTimes = new HashMap<>();
 
         while (operBeingExecuted) {
 
             for (String operation : operationQueues.keySet()) {
-                Queue<Item> items = operationQueues.get(operation);
+                Queue<Article> articles = operationQueues.get(operation);
 
-                while (items.peek() != null) {
+                while (articles.peek() != null) {
                     Machine machine = availableMachines.get(operation).poll();
                     if (machine == null)
                         break;
-                    Item item = items.poll();
+                   // Article article = article.poll();
 
-                    RunOperation runOper = new RunOperation(operation, machine, item, clock);
-                    sequence.add(runOper);
-                    runOper.start();
+               //     RunOperation runOper = new RunOperation(operation, machine, article, clock);
+               //     sequence.add(runOper);
+                 //   runOper.start();
                 }
 
             }
@@ -316,13 +341,13 @@ public class Factory {
                 endingOpr.end();
                 availableMachines.get(endingOpr.getOperationName()).add(endingOpr.getMachine());
 
-                Item item = endingOpr.getItem();
-                itemEndTimes.put(item, endingOpr.getEndTime());
+                Article article = endingOpr.getItem();
+                itemEndTimes.put(article, endingOpr.getEndTime());
 
-                int currentOperationIndex = itemProgress.get(item);
-                if (currentOperationIndex + 1 < item.getOperations().size()) {
-                    operationQueues.get(item.getOperations().get(currentOperationIndex + 1)).add(item);
-                    itemProgress.put(item, currentOperationIndex + 1);
+                int currentOperationIndex = itemProgress.get(article);
+                if (currentOperationIndex + 1 < article.getOperations().size()) {
+                    operationQueues.get(article.getOperations().get(currentOperationIndex + 1)).add(article);
+                    itemProgress.put(article, currentOperationIndex + 1);
                 }
             }
 
@@ -340,41 +365,41 @@ public class Factory {
      * The total time is determined by subtracting 1 (start time) from the end time of the last operation.
      *
      * @param itemEndTimes a map where the key is the item and the value is the end time of its last operation.
-     * Time Complexity: O(m), where m is the number of items.
+     * Time Complexity: O(m), where m is the number of articles.
      * Space Complexity: O(m), as it requires storage for the itemEndTimes map.
      */
-    public void calculateTotalTimeForItems(Map<Item, Integer> itemEndTimes) {
-        LinkedHashMap<Item, Integer> sortedMapById = new LinkedHashMap<>(itemEndTimes);
+    public void calculateTotalTimeForItems(Map<Article, Integer> itemEndTimes) {
+        LinkedHashMap<Article, Integer> sortedMapById = new LinkedHashMap<>(itemEndTimes);
 
-        for (Item item : sortedMapById.keySet()) {
-            int totalTime = sortedMapById.get(item) - 1;
-            System.out.println("Item " + item.getId() + " levou um total de " + totalTime + " minutos para completar todas as operações.");
+        for (Article article : sortedMapById.keySet()) {
+            int totalTime = sortedMapById.get(article) - 1;
+            System.out.println("Article " + article.getId() + " levou um total de " + totalTime + " minutos para completar todas as operações.");
         }
     }
 
     /**
      * Initializes the operation queues (operationQueues) associated with each operation.
      * Items are organized by priority and added to the queue for the corresponding operation.
-     * Time Complexity: O(m + n), where m is the number of items and n is the number of machines.
-     * Space Complexity: O(m + p), where m is the number of items and p is the number of operations.
+     * Time Complexity: O(m + n), where m is the number of articles and n is the number of machines.
+     * Space Complexity: O(m + p), where m is the number of articles and p is the number of operations.
      */
     private void initializeOperationQueues() {
 
-        this.operationQueues = new HashMap<String, Queue<Item>>();
+        this.operationQueues = new HashMap<String, Queue<Article>>();
 
         for (Machine machine : this.machines) {
             String operation = machine.getOperationName();
-            operationQueues.putIfAbsent(operation, new PriorityQueue<Item>(Comparator.comparing(Item::getPriority, this::comparePriority)));
+            operationQueues.putIfAbsent(operation, new PriorityQueue<Article>(Comparator.comparing(Article::getPriority, this::comparePriority)));
         }
 
-        for (Item item : items) {
-            List<String> operations = item.getOperations();
+        for (Article article : this.articles) {
+            List<String> operations = article.getOperations();
             if (operations == null || operations.isEmpty()) {
-                System.err.println("Erro: o item " + item.getId() + " não possui operações definidas.");
+                System.err.println("Erro: o article " + article.getId() + " não possui operações definidas.");
             }
 
-            operationQueues.get(operations.get(0)).add(item);
-            itemProgress.put(item, 0);
+            operationQueues.get(operations.get(0)).add(article);
+            itemProgress.put(article, 0);
         }
     }
 
@@ -394,7 +419,7 @@ public class Factory {
     }
 
     /**
-     * Compares the priority levels of two items (High, Medium, Low) for correct ordering.
+     * Compares the priority levels of two articles (High, Medium, Low) for correct ordering.
      *
      * @param priority1 The priority level of the first item.
      * @param priority2 The priority level of the second item.
@@ -494,20 +519,20 @@ public class Factory {
      *
      * @return a map where the key is the item ID and the value is a list of machine IDs that can process the item.
      *         Each machine is responsible for executing one or more operations required by the item.
-     * Time Complexity: O(m * n), where m is the number of items and n is the number of machines.
+     * Time Complexity: O(m * n), where m is the number of articles and n is the number of machines.
      * Space Complexity: O(m * k), where k is the average number of operations per item.
      */
     public Map<String,List<String>> trackItemMachineSequence(){
         Map<String,List<String>> itemMachineFlowMap = new HashMap<>();
-        for(Item item : items) {
-            List<String> operations = item.getOperations();
+        for(Article article : this.articles) {
+            List<String> operations = article.getOperations();
             List<String> machineIds = new ArrayList<>();
             for(Machine machine : machines) {
                 if(operations.contains(machine.getOperationName().trim())) {
                     machineIds.add(machine.getId());
                 }
             }
-                    itemMachineFlowMap.put(item.getId(), machineIds);
+                    itemMachineFlowMap.put(article.getId(), machineIds);
         }
         return itemMachineFlowMap;
     }

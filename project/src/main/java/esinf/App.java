@@ -1,8 +1,6 @@
 package esinf;
 
-import esinf.model.Factory;
-import esinf.model.Item;
-import esinf.model.Machine;
+import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
 
@@ -20,7 +18,7 @@ public class App {
      * This file is expected to have entries representing
      * items with their respective identifier, priority, and list of operations.
      */
-    private static final String ITEMS_CSV_FILE_PATH = "project/src/dataFiles/artigos.csv";
+    private static final String ARTICLES_CSV_FILE_PATH = "project/src/dataFiles/articles.csv";
     /**
      * The file path to the CSV file containing machine data.
      * This constant is used when loading machine information
@@ -28,7 +26,13 @@ public class App {
      * represents a machine with attributes such as an identifier,
      * operation name, and execution time.
      */
-    private static final String MACHINES_CSV_FILE_PATH = "project/src/dataFiles/maquinas.csv";
+    private static final String MACHINES_CSV_FILE_PATH = "project/src/dataFiles/workstations.csv";
+
+    private static final String ITEMS_CSV_FILE_PATH = "project/src/dataFiles/items.csv";
+
+    private static final String OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/operations.csv";
+
+    private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
 
     /**
      * The main method serves as the entry point of the application.
@@ -38,11 +42,15 @@ public class App {
      * @param args command-line arguments passed to the application
      */
     public static void main(String[] args) {
-        List<Item> items = DataLoader.loadItemsFromCsv(ITEMS_CSV_FILE_PATH);
+        List<Article> articles = DataLoader.loadArticlesFromCsv(ARTICLES_CSV_FILE_PATH);
         List<Machine> machines = DataLoader.loadMachinesFromCsv(MACHINES_CSV_FILE_PATH);
+        List<Item> items = DataLoader.loadItemsFromCSV(ITEMS_CSV_FILE_PATH);
+        List<Operation> operations = DataLoader.loadOperationsFromCSV(OPERATIONS_CSV_FILE_PATH);
 
-        if (items.isEmpty()) {
-            System.err.println("No items loaded. Please check the CSV file path.");
+        ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH,items,operations);
+
+        if (articles.isEmpty()) {
+            System.err.println("No articles loaded. Please check the CSV file path.");
             return;
         }
         if (machines.isEmpty()) {
@@ -50,16 +58,32 @@ public class App {
             return;
         }
 
+        if (items.isEmpty()) {
+            System.err.println("No items loaded. Please check the CSV path.");
+            return;
+        }
+
+        if (operations.isEmpty()) {
+            System.err.println("No operations loaded. Please check the CSV path.");
+            return;
+        }
+
         Factory factory = new Factory();
-        factory.setItems(items);
+        factory.setArticles(articles);
         factory.setMachines(machines);
+        factory.setItems(items);
+        factory.setOperations(operations);
 
 
         printFactoryDetails(factory);
-        printProductionReport(factory);
-        printOperationTimeReport(factory);
-        printExecutionReport(factory);
-        runProcessingSimulation(factory);
+        System.out.println("\nSPRINT 2 ");
+        printFactoryDetailsv2(factory);
+        System.out.println("\n*******Boo Operations (DFS Approach)*******");
+        tree.printDFSTree();
+        // printProductionReport(factory);
+        // printOperationTimeReport(factory);
+        // printExecutionReport(factory);
+        // runProcessingSimulation(factory);
     }
 
     /**
@@ -69,11 +93,20 @@ public class App {
      */
     private static void printFactoryDetails(Factory factory) {
         System.out.println("==========Factory==========");
-        System.out.println("*******Items*******");
-        factory.getItems().forEach(System.out::println);
+        System.out.println("*******Articles*******");
+        factory.getArticles().forEach(System.out::println);
 
         System.out.println("\n*******Machines*******");
         factory.getMachines().forEach(System.out::println);
+    }
+
+    private static void printFactoryDetailsv2(Factory factory) {
+        System.out.println("==========Factory==========");
+        System.out.println("*******Items*******");
+        factory.getItems().forEach(System.out::println);
+
+        System.out.println("\n*******Operations*******");
+        factory.getOperations().forEach(System.out::println);
     }
 
     /**
@@ -83,9 +116,9 @@ public class App {
      */
     private static void printProductionReport(Factory factory) {
         System.out.println("\n====== Sprint1 --- USEI03 - Report of the total production time");
-        System.out.printf("%n%-12s | %s%n", "Item ID", "Total production time (min)");
+        System.out.printf("%n%-12s | %s%n", "Article ID", "Total production time (min)");
         System.out.println("--------------------------------------------------------");
-        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalProductionInMinutes(factory.getItems());
+        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalProductionInMinutes(factory.getArticles());
 
 
         for (Pair<String, Integer> pair : totalProductionTimeReport) {
@@ -207,11 +240,6 @@ public class App {
     }
 
 
-
-
-
-
-    //US4
     private static void printOperationTimeReport(Factory factory) {
         System.out.println("\n====== Sprint1 --- USEI04 - Report of the total operation time");
         System.out.printf("%n%-12s %s%n", "Operation", "Total operation time (min)");
@@ -230,5 +258,7 @@ public class App {
         factory.runSimulation(); // Chama o método de simulação da classe Factory
         System.out.println("============================== Fim da Simulação ==============================");
     }
+
+
 
 }
