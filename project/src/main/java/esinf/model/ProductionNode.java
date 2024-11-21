@@ -8,6 +8,7 @@ public class ProductionNode {
     private String name; // Nome da operação ou item
     private String type; // Tipo: "operation" ou "item"
     private double quantity; // Quantidade (Pode ser decimal segundo o exemplo dado)
+    private ProductionNode parent; //Referenciação ao nó pai
     private List<ProductionNode> children; // Lista de filhos
 
 
@@ -17,13 +18,22 @@ public class ProductionNode {
         this.type = type;
         this.quantity = quantity;
         this.children = new ArrayList<>();
+        this.parent = null;
     }
 
+    public ProductionNode getParent() {
+        return parent;
+    }
+
+    public void setParent(ProductionNode parent) {
+        this.parent = parent;
+    }
 
     public void addChild(ProductionNode child) {
         // Adiciona o filho apenas se ele ainda não existir
         if (!this.children.contains(child)) {
             this.children.add(child);
+            child.setParent(this);
         }
     }
 
@@ -55,7 +65,7 @@ public class ProductionNode {
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", quantity=" + quantity +
-                ", children=" + children +
+                ", childrenCount=" + children.size() +
                 '}';
     }
 }

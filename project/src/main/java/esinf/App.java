@@ -75,11 +75,25 @@ public class App {
         factory.setOperations(operations);
 
 
-        printFactoryDetails(factory);
-        System.out.println("\nSPRINT 2 ");
+        //printFactoryDetails(factory);
         printFactoryDetailsv2(factory);
-        System.out.println("\n*******Boo Operations (DFS Approach)*******");
+
+        System.out.println("\n====== Sprint2 --- USEI08 - Build the complete production tree of a product.");
+        System.out.println("*******Boo Operations (DFS Approach)*******");
         tree.printDFSTree();
+        System.out.println("====== Sprint2 --- USEI09 - Efficiently search for specific operations or materials.");
+
+        String id_parentRoot = "20";
+        String name_parentRoot = "varnish bench";
+
+        String id_child = "1010";
+        String name_child = "wood 3cm";
+
+        System.out.println("Search node by id -> "+id_child+"\n"+tree.searchNode(id_child));
+        System.out.println("Search node by id [root] -> "+id_parentRoot+"\n"+tree.searchNode(id_parentRoot));
+        System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
+        System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
+
         // printProductionReport(factory);
         // printOperationTimeReport(factory);
         // printExecutionReport(factory);
@@ -255,7 +269,7 @@ public class App {
     //US8
     private static void runProcessingSimulation(Factory factory) {
         System.out.println("\n====== US8 - Simulação de Processamento por Prioridade ======");
-        factory.runSimulation(); // Chama o método de simulação da classe Factory
+        factory.runSimulation();
         System.out.println("============================== Fim da Simulação ==============================");
     }
 
