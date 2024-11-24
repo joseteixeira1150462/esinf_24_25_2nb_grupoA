@@ -94,6 +94,15 @@ public class App {
         System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
         System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
 
+        System.out.println("\n====== Sprint2 --- USEI11 - Prioritize Quality Checks");
+        Queue<QualityCheck> qc = tree.getQualityCheckSequence();
+        int priority = 1;
+        while(qc.peek() != null) {
+            QualityCheck op = qc.poll();
+            System.out.println("priority " + priority + ": level:" + op.getLevel() +  " operation " + op.getOperation());
+            priority += 1;
+        }
+
         // printProductionReport(factory);
         // printOperationTimeReport(factory);
         // printExecutionReport(factory);

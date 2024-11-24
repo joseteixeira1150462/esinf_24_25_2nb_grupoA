@@ -1,10 +1,12 @@
 package esinf.model;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+
 
 public class ProductionTree {
     private ProductionNode root; // Nó raiz da árvore
@@ -178,6 +180,52 @@ public class ProductionTree {
         }
     }
 
+//US11
+    /**
+     * Generates a priority queue of quality checks based on the production tree.
+     * Quality checks are prioritized by their level in the production process,
+     * with higher levels indicating higher priority.
+     *
+     * @return A priority queue containing quality checks ordered by priority level.
+     * Time Complexity: O(N log N)
+     * The method goes through each node (O(N)) and adds each "Operation" to the priority queue (O(log N)).
+     */
+    public Queue<QualityCheck> getQualityCheckSequence() {
+        Queue<QualityCheck> qcSequence = new PriorityQueue<QualityCheck>(Comparator.comparingInt(QualityCheck::getLevel));
+        addQualityChecksToQueue(root, qcSequence, 0);
+        return qcSequence;
+    }
+
+
+    /**
+     * Recursively traverses the production tree to add quality checks for operations
+     * into the provided priority queue. The priority of each quality check is determined
+     * by its level in the tree.
+     *
+     * @param node The current node in the production tree being processed.
+     * @param qc   The priority queue where quality checks are added.
+     * @param level The current level of the node in the production tree.
+     * Time Complexity: O(N log N)
+     * The method goes through each node (O(N)) and adds each "Operation" to the priority queue (O(log N)).
+     */
+    private void addQualityChecksToQueue(ProductionNode node, Queue<QualityCheck> qc, int level) {
+        if (node != null) {
+
+            if (node.getType().equals("Operation")) {
+                qc.add(new QualityCheck(node.getName(), level));
+            }
+
+            List<ProductionNode> children = node.getChildren();
+
+            if (children != null && !children.isEmpty()) {
+                for (int i = 0; i < children.size(); i++) {
+                    addQualityChecksToQueue(children.get(i), qc, level+1);
+                }
+            }
+        }
+    }
+
+
     private static class UpdateResult {
         final Map<Integer, Double> updates;
         final List<String> messages;
@@ -313,4 +361,5 @@ public class ProductionTree {
         public String updateNodeQuantityWithCascade(int id, double newQuantity) {
             return updateNodeQuantityWithCascade(String.valueOf(id), newQuantity);
         }
+
 }
