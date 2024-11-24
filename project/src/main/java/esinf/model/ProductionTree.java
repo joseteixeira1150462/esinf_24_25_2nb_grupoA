@@ -134,125 +134,114 @@ public class ProductionTree {
             this.messages = new ArrayList<>();
         }
     }
-    /**
-     * Updates a node's quantity and handles cascading updates to related nodes.
-     *
-     * @param identifier The ID or name of the node to update
-     * @param newQuantity The new quantity to set
-     * @return A string describing all updates made
-     */
 
-    public String updateNodeQuantityWithCascade(String identifier, double newQuantity) {
-        ProductionNode node;
+        /**
+         * Updates a node's quantity and handles cascading updates to related nodes.
+         *
+         * @param identifier The ID or name of the node to update
+         * @param newQuantity The new quantity to set
+         * @return A string describing all updates made
+         */
+        public String updateNodeQuantityWithCascade(String identifier, double newQuantity) {
+            ProductionNode node;
 
-        // Find the node
-        try {
-            int id = Integer.parseInt(identifier);
-            node = findNodeById(id);
-        } catch (NumberFormatException e) {
-            node = findNodeByName(identifier);
-        }
+            // Encontrar o nó
+            try {
+                int id = Integer.parseInt(identifier);
+                node = findNodeById(id);
+            } catch (NumberFormatException e) {
+                node = findNodeByName(identifier);
+            }
 
-        if (node == null) {
-            return "Error: Node not found for identifier: " + identifier;
-        }
+            if (node == null) {
+                return "Error: Node not found for identifier: " + identifier;
+            }
 
-        // Verify node is of type "item"
-        if (!"item".equalsIgnoreCase(node.getType())) {
-            return "Error: Cannot update quantity for node type: " + node.getType() + ". Only items can have quantities.";
-        }
+            // Verifica se o nó é do tipo "item"
+            if (!"item".equalsIgnoreCase(node.getType())) {
+                return "Error: Cannot update quantity for node type: " + node.getType() + ". Only items can have quantities.";
+            }
 
-        try {
-            UpdateResult result = new UpdateResult();
+            try {
+                UpdateResult result = new UpdateResult();
 
-            // Perform the cascading update
-            updateNodeAndDependencies(node, newQuantity, result);
+                // Atualiza em forma de cascata
+                updateNodeAndDependencies(node, newQuantity, result);
 
-            // Build the response message
-            StringBuilder response = new StringBuilder();
-            response.append("Cascade Update Results:\n\n");
+                // Cria a resposta final
+                StringBuilder response = new StringBuilder();
+                response.append("Cascade Update Results:\n\n");
 
-            // Report primary update
-            response.append("Primary Update:\n");
-            response.append(String.format("- %s (ID: %d): %.2f\n\n",
-                    node.getName(), node.getId(), newQuantity));
+                response.append("Primary Update:\n");
+                response.append(String.format("- %s (ID: %d): %.2f\n\n",
+                        node.getName(), node.getId(), newQuantity));
 
-            // Report cascading updates
-            if (result.updates.size() > 1) {  // More than just the primary update
-                response.append("Cascading Updates:\n");
-                for (Map.Entry<Integer, Double> update : result.updates.entrySet()) {
-                    if (update.getKey() != node.getId()) {  // Skip the primary node
-                        ProductionNode updatedNode = findNodeById(update.getKey());
-                        response.append(String.format("- %s (ID: %d): %.2f\n",
-                                updatedNode.getName(), updatedNode.getId(), updatedNode.getQuantity()));
+                // Reporta atualizações efetuadas enquanto se corre a tree
+                if (result.updates.size() > 1) {
+                    response.append("Cascading Updates:\n");
+                    for (Map.Entry<Integer, Double> update : result.updates.entrySet()) {
+                        if (update.getKey() != node.getId()) {
+                            ProductionNode updatedNode = findNodeById(update.getKey());
+                            response.append(String.format("- %s (ID: %d): %.2f\n",
+                                    updatedNode.getName(), updatedNode.getId(), updatedNode.getQuantity()));
+                        }
                     }
                 }
-            }
 
-            // Report any messages/warnings
-            if (!result.messages.isEmpty()) {
-                response.append("\nNotes:\n");
-                for (String message : result.messages) {
-                    response.append("- ").append(message).append("\n");
-                }
-            }
-
-            return response.toString();
-
-        } catch (IllegalArgumentException e) {
-            return "Error: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Recursively updates a node and its dependencies.
-     */
-    private void updateNodeAndDependencies(ProductionNode node, double newQuantity, UpdateResult result) {
-        // Calculate the change in quantity
-        double quantityDiff = node.setQuantity(newQuantity);
-        result.updates.put(node.getId(), newQuantity);
-
-        if (quantityDiff == 0) {
-            return;  // No change, no need to cascade
-        }
-
-        // Process downward cascade (affect child items)
-        cascadeDown(node, quantityDiff, result);
-    }
-
-    /**
-     * Cascades changes downward through the tree.
-     */
-    private void cascadeDown(ProductionNode node, double quantityDiff, UpdateResult result) {
-        for (ProductionNode child : node.getChildren()) {
-            if ("item".equalsIgnoreCase(child.getType())) {
-                double newChildQuantity = child.getQuantity() +
-                        (quantityDiff * child.getMultiplier());
-
-                if (newChildQuantity < 0) {
-                    result.messages.add(String.format(
-                            "Warning: Attempted negative quantity for %s. Kept at minimum value.",
-                            child.getName()));
-                    newChildQuantity = 0;
+                // Aviso sobre mensagens ou erros
+                if (!result.messages.isEmpty()) {
+                    response.append("\nNotes:\n");
+                    for (String message : result.messages) {
+                        response.append("- ").append(message).append("\n");
+                    }
                 }
 
-                child.setQuantity(newChildQuantity);
-                result.updates.put(child.getId(), newChildQuantity);
+                return response.toString();
 
-                // Continue cascading down
-                cascadeDown(child, quantityDiff, result);
+            } catch (IllegalArgumentException e) {
+                return "Error: " + e.getMessage();
             }
         }
-    }
 
-    /**
-     * Updates the quantity of a node by its ID.
-     *
-     * @param id The ID of the node to update
-     * @param newQuantity The new quantity to set
-     * @return A string describing the result of the operation
-     */
-    public String updateNodeQuantityWithCascade(int id, double newQuantity) {
-        return updateNodeQuantityWithCascade(String.valueOf(id), newQuantity);
-    }
+        /**
+         * Atualiza os nós e dependentes de forma recursiva.
+         */
+        private void updateNodeAndDependencies(ProductionNode node, double newQuantity, UpdateResult result) {
+            double quantityDiff = node.changeQuantity(newQuantity);
+            result.updates.put(node.getId(), newQuantity);
+
+            if (quantityDiff == 0) {
+                return;
+            }
+            cascade(node, quantityDiff, result);
+        }
+
+        private void cascade(ProductionNode node, double quantityDiff, UpdateResult result) {
+            for (ProductionNode child : node.getChildren()) {
+                if ("item".equalsIgnoreCase(child.getType())) {
+                    double newChildQuantity = child.getQuantity() +
+                            (quantityDiff * child.getMultiplier());
+
+                    if (newChildQuantity < 0) {
+                        result.messages.add(String.format(
+                                "Warning: Attempted negative quantity for %s. Kept at minimum value.",
+                                child.getName()));
+                        newChildQuantity = 0;
+                    }
+
+                    child.setQuantity(newChildQuantity);
+                    result.updates.put(child.getId(), newChildQuantity);
+
+                    // Continue cascading down
+                    cascade(child, quantityDiff, result);
+                }
+            }
+        }
+
+        /**
+         * Metodo para atualizar utilizando o numero do ID.
+         */
+        public String updateNodeQuantityWithCascade(int id, double newQuantity) {
+            return updateNodeQuantityWithCascade(String.valueOf(id), newQuantity);
+        }
 }
