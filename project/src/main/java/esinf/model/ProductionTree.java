@@ -3,6 +3,7 @@ package esinf.model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 public class ProductionTree {
     private ProductionNode root; // Nó raiz da árvore
@@ -28,6 +29,8 @@ public class ProductionTree {
             System.out.println("Parent node couldn't be null.");
         }
     }
+
+
 
     private void addToNodeMap(ProductionNode node) {
         nodeMapById.put(node.getId(), node);
@@ -79,6 +82,56 @@ public class ProductionTree {
         }
     }
 
+    //us14
+    // Method to get the root of the tree
+    public ProductionNode getRoot() {
+        return root;
+    }
+    // Recursively set the depth for each node starting from the root
+    public void setNodeDepths(ProductionNode node, int depth) {
+        node.setDepth(depth); // Set the depth of the current node
+        for (ProductionNode child : node.getChildren()) {
+            setNodeDepths(child, depth + 1); // Increment the depth as we move down the tree
+        }
+    }
+    // Fetch all critical path operations and prioritize them using heap
+    public void prioritizeCriticalPath() {
+        PriorityQueue<ProductionNode> queue = new PriorityQueue<>((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
+        addOperationsToQueue(root, queue); // Add root and its children to the priority queue
+
+        // Display the critical path in order of importance (by depth)
+        System.out.println("Critical Path Operations (Prioritized by Depth):");
+        while (!queue.isEmpty()) {
+            ProductionNode node = queue.poll();
+            System.out.println("Node: " + node.getName() + " (Depth: " + node.getDepth() + ")");
+        }
+    }
+
+    // Recursive method to add operations to the priority queue
+    private void addOperationsToQueue(ProductionNode node, PriorityQueue<ProductionNode> queue) {
+        queue.add(node); // Add the node to the heap
+        for (ProductionNode child : node.getChildren()) {
+            addOperationsToQueue(child, queue); // Add all child operations to the queue
+        }
+    }
+
+//US15
+// Insert operations into AVL tree based on their depth
+    public AVLTree buildBooTree() {
+        AVLTree avlTree = new AVLTree();
+        insertOperationsToAVL(root, avlTree);
+        return avlTree;
+    }
+
+    // Recursive method to insert operations into AVL tree
+    private void insertOperationsToAVL(ProductionNode node, AVLTree avlTree) {
+        if (node != null) {
+            avlTree.insert(node);  // Insert the node into AVL tree
+            for (ProductionNode child : node.getChildren()) {
+                insertOperationsToAVL(child, avlTree);  // Insert child nodes recursively
+            }
+        }
+    }
 
     // Busca eficiente por ID
     public ProductionNode findNodeById(int id) {
