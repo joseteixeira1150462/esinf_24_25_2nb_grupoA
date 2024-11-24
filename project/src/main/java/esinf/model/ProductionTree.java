@@ -180,7 +180,9 @@ public class ProductionTree {
         }
     }
 
-    //US13
+
+    //US13 inicio
+
     /**
      * Calculates and displays the total quantity of materials and the number of times each operation is performed
      * in the production process.
@@ -226,8 +228,36 @@ public class ProductionTree {
             } else if (node.getType().equals("Operation")) {
                 Integer totalOps = operations.getOrDefault(node.getName(), 0);
                 operations.put(node.getName(), totalOps + 1);
+            }
 
-//US11
+            List<ProductionNode> children = node.getChildren();
+
+            if (children != null && !children.isEmpty()) {
+                for (int i = 0; i < children.size(); i++) {
+                    traverseAndCalculateTotals(children.get(i), materials, operations);
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+    //US13 fim
+
+    private static class UpdateResult {
+        final Map<Integer, Double> updates;
+        final List<String> messages;
+
+        UpdateResult() {
+            this.updates = new HashMap<>();
+            this.messages = new ArrayList<>();
+        }
+    }
+
+    //US11
     /**
      * Generates a priority queue of quality checks based on the production tree.
      * Quality checks are prioritized by their level in the production process,
@@ -242,7 +272,6 @@ public class ProductionTree {
         addQualityChecksToQueue(root, qcSequence, 0);
         return qcSequence;
     }
-
 
     /**
      * Recursively traverses the production tree to add quality checks for operations
@@ -260,38 +289,19 @@ public class ProductionTree {
 
             if (node.getType().equals("Operation")) {
                 qc.add(new QualityCheck(node.getName(), level));
-
             }
 
             List<ProductionNode> children = node.getChildren();
 
             if (children != null && !children.isEmpty()) {
                 for (int i = 0; i < children.size(); i++) {
-
-                    traverseAndCalculateTotals(children.get(i), materials, operations);
-                }
-            }
-        }
-    }
-
                     addQualityChecksToQueue(children.get(i), qc, level+1);
                 }
             }
         }
     }
 
-
-    private static class UpdateResult {
-        final Map<Integer, Double> updates;
-        final List<String> messages;
-
-        UpdateResult() {
-            this.updates = new HashMap<>();
-            this.messages = new ArrayList<>();
-        }
-    }
-
-        /**
+    /**
          * Updates a node's quantity and handles cascading updates to related nodes.
          *
          * @param identifier The ID or name of the node to update
