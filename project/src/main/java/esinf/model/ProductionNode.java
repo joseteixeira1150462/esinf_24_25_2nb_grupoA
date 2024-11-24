@@ -39,6 +39,7 @@ public class ProductionNode {
         }
     }
 
+
     public double getMultiplier() {
         return multiplier;
     }
@@ -61,6 +62,19 @@ public class ProductionNode {
         return newQuantity - oldQuantity;
     }
 
+    //US14
+    private int depth; // Depth of the operation (critical path depth)
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+
+
     public int getId() {
         return id;
     }
@@ -80,6 +94,8 @@ public class ProductionNode {
     public List<ProductionNode> getChildren() {
         return children;
     }
+//US15
+
 
     @Override
     public String toString() {
