@@ -34,12 +34,6 @@ class UpdateQuantityTest {
         void testUpdateByIdSuccess() {
             String result = tree.updateNodeQuantityWithCascade("Item1", 150.0);
 
-//            assertTrue(result.contains("Primary Update:"));
-//            assertTrue(result.contains("Item1 (ID: 2): 150.00"));
-//            assertTrue(result.contains("Cascading Updates:"));
-//            assertTrue(result.contains("SubItem1 (ID: 5): 300.00"));
-//            assertTrue(result.contains("SubItem2 (ID: 6): 450.00"));
-
             assertEquals(150.0, item1.getQuantity());
             assertEquals(300.0, subItem1.getQuantity());
             assertEquals(450.0, subItem2.getQuantity());
@@ -49,10 +43,9 @@ class UpdateQuantityTest {
         void testUpdateByNameSuccess() {
             String result = tree.updateNodeQuantityWithCascade("Item1", 75.0);
 
-            //assertTrue(result.contains("Item1 (ID: 2): 75.00"));
-            assertEquals(75.0, item1.getQuantity(), 0.001);
-            assertEquals(150.0, subItem1.getQuantity(), 0.001);
-            assertEquals(225.0, subItem2.getQuantity(), 0.001);
+            assertEquals(75.0, item1.getQuantity());
+            assertEquals(150.0, subItem1.getQuantity());
+            assertEquals(225.0, subItem2.getQuantity());
         }
 
         @Test
@@ -71,19 +64,17 @@ class UpdateQuantityTest {
         void testUpdateWithNegativeQuantity() {
             String result = tree.updateNodeQuantityWithCascade("2", -50.0);
 
-            //assertTrue(result.contains("Warning: Attempted negative quantity"));
-            assertEquals(200.0, subItem1.getQuantity(), 0.001);
-            assertEquals(300.0, subItem2.getQuantity(), 0.001);
+            assertEquals(200.0, subItem1.getQuantity());
+            assertEquals(300.0, subItem2.getQuantity());
         }
 
         @Test
         void testUpdateWithZeroQuantity() {
             String result = tree.updateNodeQuantityWithCascade("2", 0.0);
 
-            //assertTrue(result.contains("Item1 (ID: 2): 0.00"));
-            assertEquals(0.0, item1.getQuantity(), 0.001);
-            assertEquals(0.0, subItem1.getQuantity(), 0.001);
-            assertEquals(0.0, subItem2.getQuantity(), 0.001);
+            assertEquals(0.0, item1.getQuantity());
+            assertEquals(0.0, subItem1.getQuantity());
+            assertEquals(0.0, subItem2.getQuantity());
         }
 
         @Test
@@ -92,8 +83,8 @@ class UpdateQuantityTest {
             String result = tree.updateNodeQuantityWithCascade("2", 100.0);
 
             assertFalse(result.contains("Cascading Updates:"));
-            assertEquals(100.0, item1.getQuantity(), 0.001);
-            assertEquals(200.0, subItem1.getQuantity(), 0.001);
-            assertEquals(300.0, subItem2.getQuantity(), 0.001);
+            assertEquals(100.0, item1.getQuantity());
+            assertEquals(200.0, subItem1.getQuantity());
+            assertEquals(300.0, subItem2.getQuantity());
         }
     }
