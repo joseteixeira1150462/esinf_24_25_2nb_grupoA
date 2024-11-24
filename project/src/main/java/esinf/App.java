@@ -94,6 +94,11 @@ public class App {
         System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
         System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
 
+
+        System.out.println("\n====== Sprint2 --- USEI13 -  Calculate the total quantity of materials and the number of times each operation is performed");
+        tree.calculateProductionTotals() ;
+
+
         System.out.println("\n====== Sprint2 --- USEI11 - Prioritize Quality Checks");
         Queue<QualityCheck> qc = tree.getQualityCheckSequence();
         int priority = 1;
@@ -323,4 +328,5 @@ public class App {
         factory.runSimulation();
         System.out.println("============================== Fim da Simulação ==============================");
     }
+
 }

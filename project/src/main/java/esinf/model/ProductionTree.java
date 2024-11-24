@@ -180,6 +180,53 @@ public class ProductionTree {
         }
     }
 
+    //US13
+    /**
+     * Calculates and displays the total quantity of materials and the number of times each operation is performed
+     * in the production process.
+     * This method traverses the production tree recursively to gather the required data.
+     * complexity O(N + M + O)
+     * - O(N): Traverses the entire production tree with N nodes.
+     * - O(M): Iterates through the materials map, where M is the number of distinct materials.
+     * - O(O): Iterates through the operations map, where O is the number of distinct operations.
+     */
+    public void calculateProductionTotals() {
+        HashMap<String, Double> materials = new HashMap<String, Double>();
+        HashMap<String, Integer> operations = new HashMap<String, Integer>();
+
+        traverseAndCalculateTotals(root, materials, operations);
+
+        System.out.println("Materials------- ");
+        for (Map.Entry<String, Double> material : materials.entrySet()) {
+            System.out.println("Material " + material.getKey() + " quantity " + material.getValue());
+        }
+
+        System.out.println("Operations------- ");
+        for (Map.Entry<String, Integer> operation : operations.entrySet()) {
+            System.out.println("Operation " + operation.getKey() + " ntimes " + operation.getValue());
+        }
+    }
+
+    /**
+     * Recursively traverses the production tree to calculate the total quantity of materials
+     * and the number of times each operation is performed.
+     *
+     * @param node       The current node being processed in the production tree.
+     * @param materials  A map to store the total quantity of each material.
+     * @param operations A map to store the total count of each operation.
+     * complexity O(N)
+     * - O(N): Traverses the entire production tree with N nodes. Each node is processed once.
+     */
+    private void traverseAndCalculateTotals(ProductionNode node, Map<String, Double> materials, Map<String, Integer> operations) {
+        if (node != null) {
+
+            if (node.getType().equals("Item")) {
+                Double quantity = materials.getOrDefault(node.getName(), 0.0);
+                materials.put(node.getName(), quantity + node.getQuantity());
+            } else if (node.getType().equals("Operation")) {
+                Integer totalOps = operations.getOrDefault(node.getName(), 0);
+                operations.put(node.getName(), totalOps + 1);
+
 //US11
     /**
      * Generates a priority queue of quality checks based on the production tree.
@@ -213,12 +260,20 @@ public class ProductionTree {
 
             if (node.getType().equals("Operation")) {
                 qc.add(new QualityCheck(node.getName(), level));
+
             }
 
             List<ProductionNode> children = node.getChildren();
 
             if (children != null && !children.isEmpty()) {
                 for (int i = 0; i < children.size(); i++) {
+
+                    traverseAndCalculateTotals(children.get(i), materials, operations);
+                }
+            }
+        }
+    }
+
                     addQualityChecksToQueue(children.get(i), qc, level+1);
                 }
             }
