@@ -104,7 +104,7 @@ public class App {
         String item = "finished bench";
         double quantity = 2.0;
         System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
-    }
+    
 
         // ===== USEI14 - Identify and prioritize critical path operations =====
         // Set the depths of all operations in the tree
