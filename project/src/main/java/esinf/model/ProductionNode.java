@@ -37,6 +37,17 @@ public class ProductionNode {
         }
     }
 
+    //US14
+    private int depth; // Depth of the operation (critical path depth)
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
 
     public int getId() {
         return id;
@@ -57,6 +68,8 @@ public class ProductionNode {
     public List<ProductionNode> getChildren() {
         return children;
     }
+//US15
+
 
     @Override
     public String toString() {
