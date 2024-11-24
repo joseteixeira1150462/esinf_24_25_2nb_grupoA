@@ -43,6 +43,8 @@ public class ProductionNode {
         return multiplier;
     }
 
+    public void setMultiplier(double multiplier) {this.multiplier = multiplier;}
+
     public void setQuantity(double quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
