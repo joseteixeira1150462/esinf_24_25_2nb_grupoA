@@ -10,6 +10,7 @@ public class ProductionNode {
     private double quantity; // Quantidade (Pode ser decimal segundo o exemplo dado)
     private ProductionNode parent; //Referenciação ao nó pai
     private List<ProductionNode> children; // Lista de filhos
+    private double multiplier; //multiplier para representar o rácio entre pai e filho
 
 
     public ProductionNode(int id, String name, String type, double quantity) {
@@ -19,6 +20,7 @@ public class ProductionNode {
         this.quantity = quantity;
         this.children = new ArrayList<>();
         this.parent = null;
+        this.multiplier = multiplier;
     }
 
     public ProductionNode getParent() {
@@ -37,11 +39,17 @@ public class ProductionNode {
         }
     }
 
-    public void setQuantity(double quantity) {
-        if (quantity < 0) {
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public double setQuantity(double newQuantity) {
+        if (newQuantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
-        this.quantity = quantity;
+        double oldQuantity = this.quantity;
+        this.quantity = newQuantity;
+        return newQuantity - oldQuantity;
     }
 
     public int getId() {

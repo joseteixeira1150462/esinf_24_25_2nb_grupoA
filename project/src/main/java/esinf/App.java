@@ -102,7 +102,7 @@ public class App {
         System.out.println("\n =====US12 - Update Material Quantity ======");
         String item = "finished bench";
         double quantity = 2.0;
-        System.out.println(tree.updateNodeQuantity(item, quantity));
+        System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
     }
 
     /**
