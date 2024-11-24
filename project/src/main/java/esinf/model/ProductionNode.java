@@ -37,6 +37,12 @@ public class ProductionNode {
         }
     }
 
+    public void setQuantity(double quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        this.quantity = quantity;
+    }
 
     public int getId() {
         return id;

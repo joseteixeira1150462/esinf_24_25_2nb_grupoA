@@ -123,4 +123,68 @@ public class ProductionTree {
             return "Node not found for identifier: " + identifier;
         }
     }
+
+    /**
+     * Updates the quantity of a specified node in the tree.
+     *
+     * @param identifier The ID or name of the node to update
+     * @param newQuantity The new quantity to set
+     * @return A string describing the result of the operation
+     * @throws IllegalArgumentException if the quantity is negative or node type is not "item"
+     */
+    public String updateNodeQuantity(String identifier, double newQuantity) {
+        ProductionNode node;
+
+        // Procura o nó utilizando funções previamente criadas
+        try {
+            int id = Integer.parseInt(identifier);
+            node = findNodeById(id);
+        } catch (NumberFormatException e) {
+            node = findNodeByName(identifier);
+        }
+
+        if (node == null) {
+            return "Error: Node not found for identifier: " + identifier;
+        }
+
+        // Verifica se o nó é do tipo item
+        if (!"item".equalsIgnoreCase(node.getType())) {
+            return "Error: Cannot update quantity for node type: " + node.getType() + ". Only items can have quantities.";
+        }
+
+        try {
+            // Guarda o valor atual da quantidade para apresentar na mensagem final
+            double oldQuantity = node.getQuantity();
+
+            // Atualiza o valor da quantidade
+            node.setQuantity(newQuantity);
+
+            // Criar uma mensagem de sucesso para ser apresentada
+            StringBuilder result = new StringBuilder();
+            result.append("Quantity Updated Successfully\n");
+            result.append("Node: ").append(node.getName()).append(" (ID: ").append(node.getId()).append(")\n");
+            result.append("Old Quantity: ").append(oldQuantity).append("\n");
+            result.append("New Quantity: ").append(newQuantity).append("\n");
+
+            if (node.getParent() != null) {
+                result.append("Parent Operation: ").append(node.getParent().getName());
+            }
+
+            return result.toString();
+
+        } catch (IllegalArgumentException e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Updates the quantity of a node by its ID.
+     *
+     * @param id The ID of the node to update
+     * @param newQuantity The new quantity to set
+     * @return A string describing the result of the operation
+     */
+    public String updateNodeQuantity(int id, double newQuantity) {
+        return updateNodeQuantity(String.valueOf(id), newQuantity);
+    }
 }

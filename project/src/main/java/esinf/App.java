@@ -74,7 +74,6 @@ public class App {
         factory.setItems(items);
         factory.setOperations(operations);
 
-
         //printFactoryDetails(factory);
         printFactoryDetailsv2(factory);
 
@@ -98,6 +97,12 @@ public class App {
         // printOperationTimeReport(factory);
         // printExecutionReport(factory);
         // runProcessingSimulation(factory);
+
+        //US12
+        System.out.println("\n =====US12 - Update Material Quantity ======");
+        String item = "finished bench";
+        double quantity = 2.0;
+        System.out.println(tree.updateNodeQuantity(item, quantity));
     }
 
     /**
@@ -272,7 +277,4 @@ public class App {
         factory.runSimulation();
         System.out.println("============================== Fim da Simulação ==============================");
     }
-
-
-
 }
