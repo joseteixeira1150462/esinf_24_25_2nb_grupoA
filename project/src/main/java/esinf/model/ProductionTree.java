@@ -141,6 +141,22 @@ public class ProductionTree {
          * @param identifier The ID or name of the node to update
          * @param newQuantity The new quantity to set
          * @return A string describing all updates made
+         *
+         * Metodo Principal (updateNodeQuantityWithCascade):
+            * A busca inicial do nó é O(n) no pior caso (quando procura por nome)
+            * A construção da resposta é O(m) onde m é o número de nós atualizados
+         *
+         * Complexidade das Operações em Cascata:
+            * cascadeUp: O(h * s) onde:
+                * h é a altura da árvore
+                * s é o número médio de irmãos (siblings) por nó
+         *
+         * cascadeDown: O(d) onde:
+            * d é o número total de descendentes do nó sendo atualizado
+         *
+         * Complexidade Total:
+            * No pior caso: O(n + h*s + d)
+            * onde n é o número total de nós na árvore
          */
         public String updateNodeQuantityWithCascade(String identifier, double newQuantity) {
             ProductionNode node;
