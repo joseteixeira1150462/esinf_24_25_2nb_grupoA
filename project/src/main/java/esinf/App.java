@@ -18,7 +18,7 @@ public class App {
      * This file is expected to have entries representing
      * items with their respective identifier, priority, and list of operations.
      */
-    private static final String ARTICLES_CSV_FILE_PATH = "project/src/dataFiles/articles.csv";
+    private static final String ARTICLES_CSV_FILE_PATH = "src/dataFiles/articles.csv";
     /**
      * The file path to the CSV file containing machine data.
      * This constant is used when loading machine information
@@ -26,13 +26,13 @@ public class App {
      * represents a machine with attributes such as an identifier,
      * operation name, and execution time.
      */
-    private static final String MACHINES_CSV_FILE_PATH = "project/src/dataFiles/workstations.csv";
+    private static final String MACHINES_CSV_FILE_PATH = "src/dataFiles/workstations.csv";
 
-    private static final String ITEMS_CSV_FILE_PATH = "project/src/dataFiles/items.csv";
+    private static final String ITEMS_CSV_FILE_PATH = "src/dataFiles/items.csv";
 
-    private static final String OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/operations.csv";
+    private static final String OPERATIONS_CSV_FILE_PATH = "src/dataFiles/operations.csv";
 
-    private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
+    private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "src/dataFiles/boo_v2.csv";
 
     /**
      * The main method serves as the entry point of the application.
@@ -42,6 +42,7 @@ public class App {
      * @param args command-line arguments passed to the application
      */
     public static void main(String[] args) {
+
         List<Article> articles = DataLoader.loadArticlesFromCsv(ARTICLES_CSV_FILE_PATH);
         List<Machine> machines = DataLoader.loadMachinesFromCsv(MACHINES_CSV_FILE_PATH);
         List<Item> items = DataLoader.loadItemsFromCSV(ITEMS_CSV_FILE_PATH);
@@ -73,7 +74,6 @@ public class App {
         factory.setMachines(machines);
         factory.setItems(items);
         factory.setOperations(operations);
-
 
         //printFactoryDetails(factory);
         printFactoryDetailsv2(factory);
@@ -107,7 +107,48 @@ public class App {
         // printOperationTimeReport(factory);
         // printExecutionReport(factory);
         // runProcessingSimulation(factory);
-    }
+
+        //US12
+        System.out.println("\n =====US12 - Update Material Quantity ======");
+        String item = "finished bench";
+        double quantity = 2.0;
+        System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
+    
+
+        // ===== USEI14 - Identify and prioritize critical path operations =====
+        // Set the depths of all operations in the tree
+        System.out.println("\n====== Sprint2 --- USEI14 - Identify and prioritize critical path operations.");
+        tree.setNodeDepths(tree.getRoot(), 0); // Start from root with depth 0
+        // Tree
+        //tree.printDFSTree();
+        // Prioritize critical path and display operations based on depth
+        tree.prioritizeCriticalPath();
+
+        //===== USEI14 Put the components into production in the simulator (AVL Tree)
+        System.out.println("\n====== USEI15 - Put the components into production in the simulator (AVL Tree) ======");
+        AVLTree avlTree = tree.buildBooTree();
+
+        if (avlTree == null) {
+            System.err.println("Error: Failed to build AVL Tree. Check production tree data.");
+            return;
+        }
+
+        System.out.println("\n--- AVL Tree Structure ---");
+        avlTree.printAVLTree();
+
+        System.out.println("\n--- Production Sequence (By Dependency Level) ---");
+        List<ProductionNode> productionOrder = avlTree.simulateProduction();
+        for (ProductionNode node : productionOrder) {
+            // Generate indentation based on depth for visual hierarchy
+            String indentation = new String(new char[node.getDepth() * 4]).replace('\0', ' ');
+            System.out.println(indentation + "→ ProductionNode { " +
+                    "ID: " + node.getId() +
+                    ", Name: '" + node.getName() + '\'' +
+                    ", Type: '" + node.getType() + '\'' +
+                    ", Quantity: " + node.getQuantity() +
+                    ", Depth: " + node.getDepth() + " }");
+        }}
+
 
     /**
      * Prints details of the given Factory, including its items and machines.
@@ -121,6 +162,7 @@ public class App {
 
         System.out.println("\n*******Machines*******");
         factory.getMachines().forEach(System.out::println);
+
     }
 
     private static void printFactoryDetailsv2(Factory factory) {
@@ -281,7 +323,4 @@ public class App {
         factory.runSimulation();
         System.out.println("============================== Fim da Simulação ==============================");
     }
-
-
-
 }
