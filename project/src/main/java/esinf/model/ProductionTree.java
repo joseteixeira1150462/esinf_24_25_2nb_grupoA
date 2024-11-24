@@ -353,7 +353,6 @@ public class ProductionTree {
                 // Cria a resposta final
                 StringBuilder response = new StringBuilder();
                 response.append("Cascade Update Results:\n\n");
-
                 response.append("Primary Update:\n");
                 response.append(String.format("- %s (ID: %d): %.2f\n\n",
                         node.getName(), node.getId(), newQuantity));
@@ -377,9 +376,7 @@ public class ProductionTree {
                         response.append("- ").append(message).append("\n");
                     }
                 }
-
                 return response.toString();
-
             } catch (IllegalArgumentException e) {
                 return "Error: " + e.getMessage();
             }
@@ -389,24 +386,23 @@ public class ProductionTree {
          * Atualiza os nós e dependentes de forma recursiva.
          */
         private void updateNodeAndDependencies(ProductionNode node, double newQuantity, UpdateResult result) {
-            double quantityDiff = node.changeQuantity(newQuantity);
+            double racio = node.changeQuantity(newQuantity);
             result.updates.put(node.getId(), newQuantity);
 
-            if (quantityDiff == 0) {
+            if (racio == 1) {
                 return;
             }
-            cascade(node, quantityDiff, result);
+            cascade(node, racio, result);
         }
 
-        private void cascade(ProductionNode node, double quantityDiff, UpdateResult result) {
+        private void cascade(ProductionNode node, double racio, UpdateResult result) {
             for (ProductionNode child : node.getChildren()) {
                 if ("item".equalsIgnoreCase(child.getType())) {
-                    double newChildQuantity = child.getQuantity() +
-                            (quantityDiff * child.getMultiplier());
+                    double newChildQuantity = (child.getQuantity() * racio);
 
-                    if (newChildQuantity < 0) {
+                    if (newChildQuantity <= 0.00) {
                         result.messages.add(String.format(
-                                "Warning: Attempted negative quantity for %s. Kept at minimum value.",
+                                "Warning: Attempted negative quantity for %s.",
                                 child.getName()));
                         newChildQuantity = 0;
                     }
@@ -415,7 +411,7 @@ public class ProductionTree {
                     result.updates.put(child.getId(), newChildQuantity);
 
                     // Continue cascading down
-                    cascade(child, quantityDiff, result);
+                    cascade(child, racio, result);
                 }
             }
         }
