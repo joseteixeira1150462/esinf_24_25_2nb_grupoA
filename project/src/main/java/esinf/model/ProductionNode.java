@@ -10,6 +10,7 @@ public class ProductionNode {
     private double quantity; // Quantidade (Pode ser decimal segundo o exemplo dado)
     private ProductionNode parent; //Referenciação ao nó pai
     private List<ProductionNode> children; // Lista de filhos
+    private double multiplier; //multiplier para representar o rácio entre pai e filho
 
 
     public ProductionNode(int id, String name, String type, double quantity) {
@@ -19,6 +20,7 @@ public class ProductionNode {
         this.quantity = quantity;
         this.children = new ArrayList<>();
         this.parent = null;
+        this.multiplier = multiplier;
     }
 
     public ProductionNode getParent() {
@@ -36,6 +38,41 @@ public class ProductionNode {
             child.setParent(this);
         }
     }
+
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {this.multiplier = multiplier;}
+
+    public void setQuantity(double quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        this.quantity = quantity;
+    }
+
+    public double changeQuantity(double newQuantity) {
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        double oldQuantity = this.quantity;
+        this.quantity = newQuantity;
+        return newQuantity - oldQuantity;
+    }
+
+    //US14
+    private int depth; // Depth of the operation (critical path depth)
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
 
 
     public int getId() {
@@ -57,6 +94,8 @@ public class ProductionNode {
     public List<ProductionNode> getChildren() {
         return children;
     }
+//US15
+
 
     @Override
     public String toString() {
