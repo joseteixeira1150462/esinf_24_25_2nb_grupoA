@@ -1,5 +1,6 @@
 package esinf.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,4 +177,140 @@ public class ProductionTree {
             return "Node not found for identifier: " + identifier;
         }
     }
+
+    private static class UpdateResult {
+        final Map<Integer, Double> updates;
+        final List<String> messages;
+
+        UpdateResult() {
+            this.updates = new HashMap<>();
+            this.messages = new ArrayList<>();
+        }
+    }
+
+        /**
+         * Updates a node's quantity and handles cascading updates to related nodes.
+         *
+         * @param identifier The ID or name of the node to update
+         * @param newQuantity The new quantity to set
+         * @return A string describing all updates made
+         *
+         * Metodo Principal (updateNodeQuantityWithCascade):
+            * A busca inicial do nó é O(n) no pior caso (quando procura por nome)
+            * A construção da resposta é O(m) onde m é o número de nós atualizados
+         *
+         * Complexidade das Operações em Cascata:
+            * cascadeUp: O(h * s) onde:
+                * h é a altura da árvore
+                * s é o número médio de irmãos (siblings) por nó
+         *
+         * cascadeDown: O(d) onde:
+            * d é o número total de descendentes do nó sendo atualizado
+         *
+         * Complexidade Total:
+            * No pior caso: O(n + h*s + d)
+            * onde n é o número total de nós na árvore
+         */
+        public String updateNodeQuantityWithCascade(String identifier, double newQuantity) {
+            ProductionNode node;
+
+            // Encontrar o nó
+            try {
+                int id = Integer.parseInt(identifier);
+                node = findNodeById(id);
+            } catch (NumberFormatException e) {
+                node = findNodeByName(identifier);
+            }
+
+            if (node == null) {
+                return "Error: Node not found for identifier: " + identifier;
+            }
+
+            // Verifica se o nó é do tipo "item"
+            if (!"item".equalsIgnoreCase(node.getType())) {
+                return "Error: Cannot update quantity for node type: " + node.getType() + ". Only items can have quantities.";
+            }
+
+            try {
+                UpdateResult result = new UpdateResult();
+
+                // Atualiza em forma de cascata
+                updateNodeAndDependencies(node, newQuantity, result);
+
+                // Cria a resposta final
+                StringBuilder response = new StringBuilder();
+                response.append("Cascade Update Results:\n\n");
+
+                response.append("Primary Update:\n");
+                response.append(String.format("- %s (ID: %d): %.2f\n\n",
+                        node.getName(), node.getId(), newQuantity));
+
+                // Reporta atualizações efetuadas enquanto se corre a tree
+                if (result.updates.size() > 1) {
+                    response.append("Cascading Updates:\n");
+                    for (Map.Entry<Integer, Double> update : result.updates.entrySet()) {
+                        if (update.getKey() != node.getId()) {
+                            ProductionNode updatedNode = findNodeById(update.getKey());
+                            response.append(String.format("- %s (ID: %d): %.2f\n",
+                                    updatedNode.getName(), updatedNode.getId(), updatedNode.getQuantity()));
+                        }
+                    }
+                }
+
+                // Aviso sobre mensagens ou erros
+                if (!result.messages.isEmpty()) {
+                    response.append("\nNotes:\n");
+                    for (String message : result.messages) {
+                        response.append("- ").append(message).append("\n");
+                    }
+                }
+
+                return response.toString();
+
+            } catch (IllegalArgumentException e) {
+                return "Error: " + e.getMessage();
+            }
+        }
+
+        /**
+         * Atualiza os nós e dependentes de forma recursiva.
+         */
+        private void updateNodeAndDependencies(ProductionNode node, double newQuantity, UpdateResult result) {
+            double quantityDiff = node.changeQuantity(newQuantity);
+            result.updates.put(node.getId(), newQuantity);
+
+            if (quantityDiff == 0) {
+                return;
+            }
+            cascade(node, quantityDiff, result);
+        }
+
+        private void cascade(ProductionNode node, double quantityDiff, UpdateResult result) {
+            for (ProductionNode child : node.getChildren()) {
+                if ("item".equalsIgnoreCase(child.getType())) {
+                    double newChildQuantity = child.getQuantity() +
+                            (quantityDiff * child.getMultiplier());
+
+                    if (newChildQuantity < 0) {
+                        result.messages.add(String.format(
+                                "Warning: Attempted negative quantity for %s. Kept at minimum value.",
+                                child.getName()));
+                        newChildQuantity = 0;
+                    }
+
+                    child.setQuantity(newChildQuantity);
+                    result.updates.put(child.getId(), newChildQuantity);
+
+                    // Continue cascading down
+                    cascade(child, quantityDiff, result);
+                }
+            }
+        }
+
+        /**
+         * Metodo para atualizar utilizando o numero do ID.
+         */
+        public String updateNodeQuantityWithCascade(int id, double newQuantity) {
+            return updateNodeQuantityWithCascade(String.valueOf(id), newQuantity);
+        }
 }
