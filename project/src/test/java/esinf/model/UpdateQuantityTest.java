@@ -3,7 +3,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class ProductionNodeTest {
+class UpdateQuantityTest {
         private ProductionNode root;
         private ProductionNode item1;
         private ProductionNode item2;
