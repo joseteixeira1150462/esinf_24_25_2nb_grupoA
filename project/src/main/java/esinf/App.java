@@ -3,6 +3,7 @@ package esinf;
 import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
+import esinf.utils.adjacencymapgraph.Graph;
 
 
 import java.util.*;
@@ -34,6 +35,8 @@ public class App {
 
     private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
 
+    private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/activities_v0.csv";
+
     /**
      * The main method serves as the entry point of the application.
      * It is responsible for loading items and machines from CSV files,
@@ -49,6 +52,7 @@ public class App {
         List<Operation> operations = DataLoader.loadOperationsFromCSV(OPERATIONS_CSV_FILE_PATH);
 
         ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH,items,operations);
+        ActivityGraph activityVertexGraph = DataLoader.loadActivityMapGraphFromCSV(ACTIVITIES_CSV_FILE_PATH);
 
         if (articles.isEmpty()) {
             System.err.println("No articles loaded. Please check the CSV file path.");
@@ -69,90 +73,102 @@ public class App {
             return;
         }
 
+        if(activityVertexGraph.numVertices()== 0){
+            System.err.println("No activity graph loaded. Please check the CSV path.");
+            return;
+        }
+
         Factory factory = new Factory();
         factory.setArticles(articles);
         factory.setMachines(machines);
         factory.setItems(items);
         factory.setOperations(operations);
 
-        //printFactoryDetails(factory);
-        printFactoryDetailsv2(factory);
 
-        System.out.println("\n====== Sprint2 --- USEI08 - Build the complete production tree of a product.");
-        System.out.println("*******Boo Operations (DFS Approach)*******");
-        tree.printDFSTree();
-        System.out.println("====== Sprint2 --- USEI09 - Efficiently search for specific operations or materials.");
+        System.out.println("\n====== Sprint3 --- USEI17 -  Build a PERT-CPM graph from activities.csv.");
+        System.out.println("*******Activity Graph (Homogeneous and Directional)*******");
+        System.out.println(activityVertexGraph+"\nGraph Details: ");
+        activityVertexGraph.graphDetails();
 
-        String id_parentRoot = "20";
-        String name_parentRoot = "varnish bench";
-
-        String id_child = "1010";
-        String name_child = "wood 3cm";
-
-        System.out.println("Search node by id -> "+id_child+"\n"+tree.searchNode(id_child));
-        System.out.println("Search node by id [root] -> "+id_parentRoot+"\n"+tree.searchNode(id_parentRoot));
-        System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
-        System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
-
-
-        System.out.println("\n====== Sprint2 --- USEI13 -  Calculate the total quantity of materials and the number of times each operation is performed");
-        tree.calculateProductionTotals() ;
-
-
-        System.out.println("\n====== Sprint2 --- USEI11 - Prioritize Quality Checks");
-        Queue<QualityCheck> qc = tree.getQualityCheckSequence();
-        int priority = 1;
-        while(qc.peek() != null) {
-            QualityCheck op = qc.poll();
-            System.out.println("priority " + priority + ": level:" + op.getLevel() +  " operation " + op.getOperation());
-            priority += 1;
+//        //printFactoryDetails(factory);
+//        printFactoryDetailsv2(factory);
+//
+//        System.out.println("\n====== Sprint2 --- USEI08 - Build the complete production tree of a product.");
+//        System.out.println("*******Boo Operations (DFS Approach)*******");
+//        tree.printDFSTree();
+//        System.out.println("====== Sprint2 --- USEI09 - Efficiently search for specific operations or materials.");
+//
+//        String id_parentRoot = "20";
+//        String name_parentRoot = "varnish bench";
+//
+//        String id_child = "1010";
+//        String name_child = "wood 3cm";
+//
+//        System.out.println("Search node by id -> "+id_child+"\n"+tree.searchNode(id_child));
+//        System.out.println("Search node by id [root] -> "+id_parentRoot+"\n"+tree.searchNode(id_parentRoot));
+//        System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
+//        System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
+//
+//
+//        System.out.println("\n====== Sprint2 --- USEI13 -  Calculate the total quantity of materials and the number of times each operation is performed");
+//        tree.calculateProductionTotals() ;
+//
+//
+//        System.out.println("\n====== Sprint2 --- USEI11 - Prioritize Quality Checks");
+//        Queue<QualityCheck> qc = tree.getQualityCheckSequence();
+//        int priority = 1;
+//        while(qc.peek() != null) {
+//            QualityCheck op = qc.poll();
+//            System.out.println("priority " + priority + ": level:" + op.getLevel() +  " operation " + op.getOperation());
+//            priority += 1;
+//        }
+//
+//        // printProductionReport(factory);
+//        // printOperationTimeReport(factory);
+//        // printExecutionReport(factory);
+//        // runProcessingSimulation(factory);
+//
+//        //US12
+//        System.out.println("\n =====US12 - Update Material Quantity ======");
+//        String item = "finished bench";
+//        double quantity = 2.0;
+//        System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
+//
+//
+//        // ===== USEI14 - Identify and prioritize critical path operations =====
+//        // Set the depths of all operations in the tree
+//        System.out.println("\n====== Sprint2 --- USEI14 - Identify and prioritize critical path operations.");
+//        tree.setNodeDepths(tree.getRoot(), 0); // Start from root with depth 0
+//        // Tree
+//        //tree.printDFSTree();
+//        // Prioritize critical path and display operations based on depth
+//        tree.prioritizeCriticalPath();
+//
+//        //===== USEI14 Put the components into production in the simulator (AVL Tree)
+//        System.out.println("\n====== USEI15 - Put the components into production in the simulator (AVL Tree) ======");
+//        AVLTree avlTree = tree.buildBooTree();
+//
+//        if (avlTree == null) {
+//            System.err.println("Error: Failed to build AVL Tree. Check production tree data.");
+//            return;
+//        }
+//
+//        System.out.println("\n--- AVL Tree Structure ---");
+//        avlTree.printAVLTree();
+//
+//        System.out.println("\n--- Production Sequence (By Dependency Level) ---");
+//        List<ProductionNode> productionOrder = avlTree.simulateProduction();
+//        for (ProductionNode node : productionOrder) {
+//            // Generate indentation based on depth for visual hierarchy
+//            String indentation = new String(new char[node.getDepth() * 4]).replace('\0', ' ');
+//            System.out.println(indentation + "→ ProductionNode { " +
+//                    "ID: " + node.getId() +
+//                    ", Name: '" + node.getName() + '\'' +
+//                    ", Type: '" + node.getType() + '\'' +
+//                    ", Quantity: " + node.getQuantity() +
+//                    ", Depth: " + node.getDepth() + " }");
+//        }
         }
-
-        // printProductionReport(factory);
-        // printOperationTimeReport(factory);
-        // printExecutionReport(factory);
-        // runProcessingSimulation(factory);
-
-        //US12
-        System.out.println("\n =====US12 - Update Material Quantity ======");
-        String item = "finished bench";
-        double quantity = 2.0;
-        System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
-    
-
-        // ===== USEI14 - Identify and prioritize critical path operations =====
-        // Set the depths of all operations in the tree
-        System.out.println("\n====== Sprint2 --- USEI14 - Identify and prioritize critical path operations.");
-        tree.setNodeDepths(tree.getRoot(), 0); // Start from root with depth 0
-        // Tree
-        //tree.printDFSTree();
-        // Prioritize critical path and display operations based on depth
-        tree.prioritizeCriticalPath();
-
-        //===== USEI14 Put the components into production in the simulator (AVL Tree)
-        System.out.println("\n====== USEI15 - Put the components into production in the simulator (AVL Tree) ======");
-        AVLTree avlTree = tree.buildBooTree();
-
-        if (avlTree == null) {
-            System.err.println("Error: Failed to build AVL Tree. Check production tree data.");
-            return;
-        }
-
-        System.out.println("\n--- AVL Tree Structure ---");
-        avlTree.printAVLTree();
-
-        System.out.println("\n--- Production Sequence (By Dependency Level) ---");
-        List<ProductionNode> productionOrder = avlTree.simulateProduction();
-        for (ProductionNode node : productionOrder) {
-            // Generate indentation based on depth for visual hierarchy
-            String indentation = new String(new char[node.getDepth() * 4]).replace('\0', ' ');
-            System.out.println(indentation + "→ ProductionNode { " +
-                    "ID: " + node.getId() +
-                    ", Name: '" + node.getName() + '\'' +
-                    ", Type: '" + node.getType() + '\'' +
-                    ", Quantity: " + node.getQuantity() +
-                    ", Depth: " + node.getDepth() + " }");
-        }}
 
 
     /**

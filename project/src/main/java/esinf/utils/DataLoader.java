@@ -1,6 +1,7 @@
 package esinf.utils;
 
 import esinf.model.*;
+import esinf.utils.adjacencymapgraph.Graph;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -179,6 +180,57 @@ public class DataLoader {
 
         return new ProductionTree(root);
     }
+
+    //Sprint3
+    public static ActivityGraph loadActivityMapGraphFromCSV(String activitiesCsvFilePath) {
+        ActivityGraph graph = new ActivityGraph();
+        String line;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
+            br.readLine(); // Pula o cabeçalho do CSV
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(";");
+
+                // Lê os dados da atividade
+                int id = Integer.parseInt(fields[0]); // Lê o act_id
+                String description = fields[1];
+                int duration = Integer.parseInt(fields[2]);
+                String durationUnit = fields[3];
+                double cost = Double.parseDouble(fields[4]);
+                String costUnit = fields[5];
+
+                // Cria o vértice de atividade com os dados do CSV
+                ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
+                graph.addActivity(activity);  // Usa o método addActivity
+
+                // Lê as dependências (se existirem)
+                for (int i = 6; i < fields.length; i++) {
+                    if (!fields[i].isEmpty()) {
+                        int dependencyId = Integer.parseInt(fields[i]);
+                        ActivityVertex dependency = findVertexById(graph, dependencyId); // Busca o vértice de dependência
+                        if (dependency != null) {
+                            graph.addDependency(dependency, activity, "Dependency");  // Usa o método addDependency
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return graph;
+    }
+
+    // Metodo para buscar um vértice por ID dentro do grafo
+    private static ActivityVertex findVertexById(ActivityGraph graph, int id) {
+        for (ActivityVertex vertex : graph.vertices()) {
+            if (vertex.getId() == id) {
+                return vertex;
+            }
+        }
+        return null; // Retorna null se não encontrar o vértice com o ID
+    }
+
 
     private static double parseQuantity(String value) {
         if (value == null || value.trim().isEmpty()) {
