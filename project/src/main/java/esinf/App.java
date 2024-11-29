@@ -18,7 +18,7 @@ public class App {
      * This file is expected to have entries representing
      * items with their respective identifier, priority, and list of operations.
      */
-    private static final String ARTICLES_CSV_FILE_PATH = "src/dataFiles/articles.csv";
+    private static final String ARTICLES_CSV_FILE_PATH = "project/src/dataFiles/articles.csv";
     /**
      * The file path to the CSV file containing machine data.
      * This constant is used when loading machine information
@@ -26,13 +26,13 @@ public class App {
      * represents a machine with attributes such as an identifier,
      * operation name, and execution time.
      */
-    private static final String MACHINES_CSV_FILE_PATH = "src/dataFiles/workstations.csv";
+    private static final String MACHINES_CSV_FILE_PATH = "project/src/dataFiles/workstations.csv";
 
-    private static final String ITEMS_CSV_FILE_PATH = "src/dataFiles/items.csv";
+    private static final String ITEMS_CSV_FILE_PATH = "project/src/dataFiles/items.csv";
 
-    private static final String OPERATIONS_CSV_FILE_PATH = "src/dataFiles/operations.csv";
+    private static final String OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/operations.csv";
 
-    private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "src/dataFiles/boo_v2.csv";
+    private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
 
     /**
      * The main method serves as the entry point of the application.
