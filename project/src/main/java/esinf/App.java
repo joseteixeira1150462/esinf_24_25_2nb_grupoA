@@ -85,14 +85,13 @@ public class App {
         factory.setOperations(operations);
 
 
-        System.out.println("====== Sprint3 --- USEI17 - Building PERT-CPM Graph from activities.csv ======\n");
+        System.out.println("====== Sprint3 --- USEI17 - Building PERT-CPM Graph from activities.csv ======");
+        System.out.println("#### Graph Details ####");
+        activityVertexGraph.graphDetails();
+        System.out.println("#######################\n");
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
 
-        System.out.println("\n====================== Graph Details ======================");
-        activityVertexGraph.graphDetails();
-
-        System.out.println("\n===========================================================");
 
 
 //        //printFactoryDetails(factory);
