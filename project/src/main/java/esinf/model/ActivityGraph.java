@@ -52,6 +52,7 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
         // Para cada vértice (atividade), exibe seus detalhes e dependências
         for (ActivityVertex vertex : this.vertices()) {
             sb.append("Activity [ID: ").append(vertex.getId())
@@ -61,8 +62,25 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
                     .append(", Cost: ").append(vertex.getCost())
                     .append(" ").append(vertex.getCostUnit()).append("]\n");
 
-            sb.append("  Dependencies:\n");
-            // Exibe as atividades dependentes
+            sb.append("Dependencies (In):\n");
+            boolean hasIncoming = false;
+            for (Edge<ActivityVertex, String> edge : this.incomingEdges(vertex)) {
+                ActivityVertex source = edge.getVOrig();
+                sb.append("    <- Activity [ID: ").append(source.getId())
+                        .append(", Description: ").append(source.getDescription())
+                        .append(", Duration: ").append(source.getDuration())
+                        .append(" ").append(source.getDurationUnit())
+                        .append(", Cost: ").append(source.getCost())
+                        .append(" ").append(source.getCostUnit()).append("]\n");
+                hasIncoming = true;
+            }
+            if (!hasIncoming) {
+                sb.append("    (No incoming dependencies)\n");
+            }
+
+            sb.append("Dependencies (Out):\n");
+            // Exibe as dependências de saída
+            boolean hasOutgoing = false;
             for (Edge<ActivityVertex, String> edge : this.outgoingEdges(vertex)) {
                 ActivityVertex dest = (ActivityVertex) edge.getVDest(); // Obtém o destino da aresta
                 sb.append("    -> Activity [ID: ").append(dest.getId())
@@ -71,15 +89,15 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
                         .append(" ").append(dest.getDurationUnit())
                         .append(", Cost: ").append(dest.getCost())
                         .append(" ").append(dest.getCostUnit()).append("]\n");
+                hasOutgoing = true;
             }
-
-            // Caso não haja dependências
-            if (!this.outgoingEdges(vertex).iterator().hasNext()) {
-                sb.append("    (No dependencies)\n");
+            if (!hasOutgoing) {
+                sb.append("    (No outgoing dependencies)\n");
             }
 
             sb.append("\n");
         }
+
         return sb.toString();
     }
 }

@@ -1,11 +1,7 @@
 package esinf.utils.adjacencymapgraph;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -132,10 +128,23 @@ public class Graph<V,E> implements GraphInterface<V,E> {
     }
     
     public Iterable<Edge<V,E>> incomingEdges(V vert){
- 
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        if (!validVertex(vert)) {
+            return null;
+        }
+
+        List<Edge<V, E>> incomingEdges = new ArrayList<>();
+        for (Vertex<V, E> vertex : vertices.values()) {
+            for (Edge<V, E> edge : vertex.getAllOutEdges()) {
+                if (edge.getVDest().equals(vert)) {
+                    incomingEdges.add(edge);
+                }
+            }
+        }
+
+        return incomingEdges;
     }
-            
+
     public boolean insertVertex(V vert){
          
         if (validVertex(vert)) 
