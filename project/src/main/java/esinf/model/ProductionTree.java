@@ -13,6 +13,9 @@ public class ProductionTree {
     private Map<Integer, ProductionNode> nodeMapById; // Mapa para busca por ID
     private Map<String, ProductionNode> nodeMapByName; // Mapa para busca por nome
 
+
+
+
     // Construtor
     public ProductionTree(ProductionNode root) {
         this.root = root;
@@ -85,11 +88,118 @@ public class ProductionTree {
         }
     }
 
+
+    // USEI22 - Identify the Critical Path
+    public List<ProductionNode> getNodes() {
+        List<ProductionNode> nodeList = new ArrayList<>();
+        collectNodes(root, nodeList);
+        return nodeList;
+    }
+
+    private void collectNodes(ProductionNode node, List<ProductionNode> nodeList) {
+        if (node == null) return;
+        nodeList.add(node);
+        for (ProductionNode child : node.getChildren()) {
+            collectNodes(child, nodeList);
+        }
+    }
+
+    public List<ProductionNode> calculateCriticalPath() {
+        List<ProductionNode> topOrder = topologicalSort();
+        Map<ProductionNode, Integer> earliestFinish = forwardPass(topOrder);
+        Map<ProductionNode, Integer> latestStart = backwardPass(topOrder, earliestFinish);
+
+        List<ProductionNode> criticalPath = new ArrayList<>();
+        for (ProductionNode node : getNodes()) {
+            if (earliestFinish.get(node).equals(latestStart.get(node))) {
+                criticalPath.add(node);
+            }
+        }
+        return criticalPath;
+    }
+
+    private List<ProductionNode> topologicalSort() {
+        List<ProductionNode> sortedList = new ArrayList<>();
+        Set<ProductionNode> visited = new HashSet<>();
+
+        for (ProductionNode node : getNodes()) {
+            if (!visited.contains(node)) {
+                topologicalSortUtil(node, visited, sortedList);
+            }
+        }
+
+        Collections.reverse(sortedList); // Reverse for correct topological order
+        return sortedList;
+    }
+
+    private void topologicalSortUtil(ProductionNode node, Set<ProductionNode> visited, List<ProductionNode> sortedList) {
+        visited.add(node);
+        for (ProductionNode child : node.getChildren()) {
+            if (!visited.contains(child)) {
+                topologicalSortUtil(child, visited, sortedList);
+            }
+        }
+        sortedList.add(node);
+    }
+
+    private Map<ProductionNode, Integer> forwardPass(List<ProductionNode> topOrder) {
+        Map<ProductionNode, Integer> earliestStart = new HashMap<>();
+        Map<ProductionNode, Integer> earliestFinish = new HashMap<>();
+
+        for (ProductionNode node : getNodes()) {
+            earliestStart.put(node, 0);
+            earliestFinish.put(node, 0);
+        }
+
+        for (ProductionNode node : topOrder) {
+            int startTime = earliestStart.get(node);
+            int finishTime = startTime + (int) node.getQuantity(); // Assuming quantity as duration
+            earliestFinish.put(node, finishTime);
+
+            for (ProductionNode child : node.getChildren()) {
+                int childStart = Math.max(earliestStart.get(child), finishTime);
+                earliestStart.put(child, childStart);
+            }
+        }
+
+        return earliestFinish;
+    }
+
+    private Map<ProductionNode, Integer> backwardPass(List<ProductionNode> topOrder, Map<ProductionNode, Integer> earliestFinish) {
+        Map<ProductionNode, Integer> latestStart = new HashMap<>();
+        Map<ProductionNode, Integer> latestFinish = new HashMap<>();
+
+        int projectDuration = Collections.max(earliestFinish.values());
+
+        for (ProductionNode node : getNodes()) {
+            latestFinish.put(node, projectDuration);
+            latestStart.put(node, projectDuration - (int) node.getQuantity());
+        }
+
+        Collections.reverse(topOrder);
+
+        for (ProductionNode node : topOrder) {
+            for (ProductionNode child : node.getChildren()) {
+                int childFinish = latestStart.get(child);
+                int nodeFinish = Math.min(latestFinish.get(node), childFinish);
+                latestFinish.put(node, nodeFinish);
+                latestStart.put(node, nodeFinish - (int) node.getQuantity());
+            }
+        }
+
+        return latestStart;
+    }
+    // END USEI22 - Identify the Critical Path
+
     //us14
     // Method to get the root of the tree
     public ProductionNode getRoot() {
         return root;
     }
+
+
+
+
     // Recursively set the depth for each node starting from the root
     public void setNodeDepths(ProductionNode node, int depth) {
         node.setDepth(depth); // Set the depth of the current node
@@ -246,6 +356,8 @@ public class ProductionTree {
 
 
     //US13 fim
+
+
 
     private static class UpdateResult {
         final Map<Integer, Double> updates;
@@ -415,6 +527,9 @@ public class ProductionTree {
                 }
             }
         }
+
+
+
 
         /**
          * Metodo para atualizar utilizando o numero do ID.

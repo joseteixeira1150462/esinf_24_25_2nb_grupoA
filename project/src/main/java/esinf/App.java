@@ -48,7 +48,7 @@ public class App {
         List<Item> items = DataLoader.loadItemsFromCSV(ITEMS_CSV_FILE_PATH);
         List<Operation> operations = DataLoader.loadOperationsFromCSV(OPERATIONS_CSV_FILE_PATH);
 
-        ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH,items,operations);
+        ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH, items, operations);
 
         if (articles.isEmpty()) {
             System.err.println("No articles loaded. Please check the CSV file path.");
@@ -89,36 +89,38 @@ public class App {
         String id_child = "1010";
         String name_child = "wood 3cm";
 
-        System.out.println("Search node by id -> "+id_child+"\n"+tree.searchNode(id_child));
-        System.out.println("Search node by id [root] -> "+id_parentRoot+"\n"+tree.searchNode(id_parentRoot));
-        System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
-        System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
+        System.out.println("Search node by id -> " + id_child + "\n" + tree.searchNode(id_child));
+        System.out.println("Search node by id [root] -> " + id_parentRoot + "\n" + tree.searchNode(id_parentRoot));
+        System.out.println("Search node by name -> " + name_child + "\n" + tree.searchNode(name_child));
+        System.out.println("Search node by name [root] -> " + name_parentRoot + "\n" + tree.searchNode(name_parentRoot));
 
 
         System.out.println("\n====== Sprint2 --- USEI13 -  Calculate the total quantity of materials and the number of times each operation is performed");
-        tree.calculateProductionTotals() ;
+        tree.calculateProductionTotals();
 
 
         System.out.println("\n====== Sprint2 --- USEI11 - Prioritize Quality Checks");
         Queue<QualityCheck> qc = tree.getQualityCheckSequence();
         int priority = 1;
-        while(qc.peek() != null) {
+        while (qc.peek() != null) {
             QualityCheck op = qc.poll();
-            System.out.println("priority " + priority + ": level:" + op.getLevel() +  " operation " + op.getOperation());
+            System.out.println("priority " + priority + ": level:" + op.getLevel() + " operation " + op.getOperation());
             priority += 1;
         }
+
 
         // printProductionReport(factory);
         // printOperationTimeReport(factory);
         // printExecutionReport(factory);
         // runProcessingSimulation(factory);
 
+
         //US12
         System.out.println("\n =====US12 - Update Material Quantity ======");
         String item = "finished bench";
         double quantity = 2.0;
         System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
-    
+
 
         // ===== USEI14 - Identify and prioritize critical path operations =====
         // Set the depths of all operations in the tree
@@ -152,7 +154,29 @@ public class App {
                     ", Type: '" + node.getType() + '\'' +
                     ", Quantity: " + node.getQuantity() +
                     ", Depth: " + node.getDepth() + " }");
-        }}
+        }
+
+        // USEI22 - Identify the Critical Path
+        calculateAndPrintCriticalPath(tree);
+        // END USEI22 - Identify the Critical Path
+
+    }
+    //US22
+    private static void calculateAndPrintCriticalPath (ProductionTree tree){
+        System.out.println("\n====== USEI22 - Identify the Critical Path ======");
+
+        List<ProductionNode> criticalPath = tree.calculateCriticalPath();
+        System.out.println("Critical Path: ");
+        for (ProductionNode node : criticalPath) {
+            System.out.println("→ Operation: " + node.getName() + ", Duration: " + node.getQuantity() + " min");
+        }
+
+        int projectDuration = 0;
+        for (ProductionNode node : criticalPath) {
+            projectDuration += node.getQuantity();
+        }
+        System.out.println("Total Project Duration: " + projectDuration + " min");
+    }
 
 
     /**
