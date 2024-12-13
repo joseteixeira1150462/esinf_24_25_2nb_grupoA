@@ -187,7 +187,7 @@ public class DataLoader {
         String line;
 
         try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
-            br.readLine(); // Pula o cabeçalho do CSV
+            br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(";");
 
@@ -199,9 +199,9 @@ public class DataLoader {
                 double cost = Double.parseDouble(fields[4]);
                 String costUnit = fields[5];
 
-                // Cria o vértice de atividade com os dados do CSV
+                // Cria o vértice de atividade com os dados do CSV e adiciona a actividade
                 ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
-                graph.addActivity(activity);  // Usa o método addActivity
+                graph.addActivity(activity);
 
                 // Lê as dependências (se existirem)
                 for (int i = 6; i < fields.length; i++) {
@@ -209,7 +209,7 @@ public class DataLoader {
                         int dependencyId = Integer.parseInt(fields[i]);
                         ActivityVertex dependency = findVertexById(graph, dependencyId); // Busca o vértice de dependência
                         if (dependency != null) {
-                            graph.addDependency(dependency, activity, "Dependency");  // Usa o método addDependency
+                            graph.addDependency(dependency, activity, "Dependency Activity");  // Usa o método addDependency
                         }
                     }
                 }

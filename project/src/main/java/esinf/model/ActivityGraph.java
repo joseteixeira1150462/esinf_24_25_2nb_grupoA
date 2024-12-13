@@ -55,10 +55,8 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
 
         // Definir cores ANSI para formatação no terminal
         String resetColor = "\033[0m";   // Reset de cor
-        String greenColor = "\033[0;32m";  // Verde
-        String yellowColor = "\033[0;33m"; // Amarelo
-        String purpleColor = "\033[38;5;129m"; // Laranja
-        String blueColor = "\033[0;34m";  // Azul
+        String yellowColor = "\033[0;33m"; // Amarelo para IncomingEddges
+        String blueColor = "\033[0;34m";  // Azul para OutcomingEdges
 
         for (ActivityVertex vertex : this.vertices()) {
             sb.append("Activity [ID: ").append(vertex.getId())
@@ -72,14 +70,14 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
             for (Edge<ActivityVertex, String> edge : this.incomingEdges(vertex)) {
                 ActivityVertex source = edge.getVOrig();
                 // Incluindo o custo na label da aresta
-                sb.append("    ").append(blueColor).append("<- Activity [ID: ").append(source.getId())
+                sb.append("    ").append(blueColor).append("<- Dependency Activity [ID: ").append(source.getId())
                         .append(", Description: ").append(source.getDescription())
-                        .append(", Cost: ").append(source.getCost())  // Aqui é onde você exibe o custo da aresta
+                        .append(", Cost: ").append(source.getCost())
                         .append("]").append(resetColor).append("\n");
                 hasIncoming = true;
             }
             if (!hasIncoming) {
-                sb.append("    ").append(greenColor).append("(No incoming dependencies)").append(resetColor).append("\n");
+                sb.append("    ").append(blueColor).append("(No incoming dependencies)").append(resetColor).append("\n");
             }
 
             // Mostrar dependências de saída
@@ -87,14 +85,14 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
             for (Edge<ActivityVertex, String> edge : this.outgoingEdges(vertex)) {
                 ActivityVertex dest = (ActivityVertex) edge.getVDest();
                 // Incluindo o custo na label da aresta
-                sb.append("    ").append(yellowColor).append("-> Activity [ID: ").append(dest.getId())
+                sb.append("    ").append(yellowColor).append("-> Dependency Activity [ID: ").append(dest.getId())
                         .append(", Description: ").append(dest.getDescription())
                         .append(", Cost: ").append(dest.getCost())  // Aqui é onde você exibe o custo da aresta
                         .append("]").append(resetColor).append("\n");
                 hasOutgoing = true;
             }
             if (!hasOutgoing) {
-                sb.append("    ").append(purpleColor).append("(No outgoing dependencies)").append(resetColor).append("\n");
+                sb.append("    ").append(yellowColor).append("(No outgoing dependencies)").append(resetColor).append("\n");
             }
 
             sb.append("\n");
