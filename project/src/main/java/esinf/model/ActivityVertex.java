@@ -10,9 +10,9 @@ import java.util.Objects;
  * duração, custo e unidades de duração e custo. Esta classe estende a classe
  * {@link Vertex}, onde o vértice é associado a um elemento de tipo {@link ActivityVertex}.
  *
- * @author DEI-ESINF
+ * @author josteixeira1150462
  */
-public class ActivityVertex extends Vertex<ActivityVertex, String> {
+public class ActivityVertex{
 
     private int id;            // ID da atividade
     private String description;   // Descrição da atividade
@@ -32,16 +32,12 @@ public class ActivityVertex extends Vertex<ActivityVertex, String> {
      * @param costUnit Unidade monetária do custo (exemplo: USD, EUR).
      */
     public ActivityVertex(int id, String description, int duration, String durationUnit, double cost, String costUnit) {
-        super(id, null); // Chama o construtor de Vertex com o ID
         this.id = id;
         this.description = description;
         this.duration = duration;
         this.durationUnit = durationUnit;
         this.cost = cost;
         this.costUnit = costUnit;
-
-        // Adiciona o objeto atual como elemento
-        this.setElement(this);
     }
 
     /**
