@@ -4,6 +4,7 @@ import esinf.utils.DataLoader;
 import esinf.utils.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.*;
 
@@ -16,11 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class FactoryTest {
 
     /**
-     * A list of items that are used in the factory tests.
+     * A list of articles that are used in the factory tests.
      * Each item in the list represents an entity with an identifier,
      * priority, and a list of operations that need to be performed.
      */
-    private List<Item> items;
+    private List<Article> articles;
     /**
      * A list of Machine objects representing the machines used in a factory.
      * Each machine in the list performs a specific operation and has a unique identifier.
@@ -43,22 +44,22 @@ public class FactoryTest {
 
     /**
      * A method to set up the test environment before each test.
-     * This method loads items and machines from their respective CSV files,
+     * This method loads articles and machines from their respective CSV files,
      * using the paths defined by the fields ITEMS_CSV_FILE_PATH and MACHINES_CSV_FILE_PATH.
-     * It populates the class members `items` and `machines` for use in the tests.
+     * It populates the class members `articles` and `machines` for use in the tests.
      */
     @BeforeEach
     void setUp() {
         // Carregar os itens e máquinas dos arquivos CSV
-        items = DataLoader.loadItemsFromCsv(ITEMS_CSV_FILE_PATH);
+        articles = DataLoader.loadArticlesFromCsv(ITEMS_CSV_FILE_PATH);
         machines = DataLoader.loadMachinesFromCsv(MACHINES_CSV_FILE_PATH);
     }
 
     /**
      * Tests the `calculateTotalProductionInMinutes` method of the `Factory` class with preloaded data.
      * This test verifies if the `calculateTotalProductionInMinutes` method correctly calculates
-     * the total production time for each item based on the loaded data (items and machines).
-     * It creates a `Factory` instance with specific items and machines data, then calls the method
+     * the total production time for each item based on the loaded data (articles and machines).
+     * It creates a `Factory` instance with specific articles and machines data, then calls the method
      * to compute the total production time and compares the actual results with the expected results.
      * Expected results are predefined and represent the sum of operation times for each item.
      * Each item has a series of operations, each with an associated time, and the expected result
@@ -71,10 +72,10 @@ public class FactoryTest {
      */
     @Test
     void testCalculateTotalProductionWithLoadedData() {
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
 
-        List<Pair<String, Integer>> actual = factory.calculateTotalProductionInMinutes(factory.getItems());
+        List<Pair<String, Integer>> actual = factory.calculateTotalProductionInMinutes(factory.getArticles());
 
         List<Pair<String, Integer>> expected = Arrays.asList(
                 new Pair<>("it1", 290),  // OperacaoA (120) + OperacaoB (80) + OperacaoC (90)
@@ -116,11 +117,11 @@ public class FactoryTest {
 
     /**
      * Tests the `calculateTotalProductionInMinutes` method of the `Factory` class
-     * when provided with an empty list of items. The method is expected to return
+     * when provided with an empty list of articles. The method is expected to return
      * an empty list of production pairs.
-     * This test initializes a `Factory` instance with an empty list of items
+     * This test initializes a `Factory` instance with an empty list of articles
      * and a predefined list of machines. It then calls the
-     * `calculateTotalProductionInMinutes` method with an empty list of items
+     * `calculateTotalProductionInMinutes` method with an empty list of articles
      * and asserts that the returned list is also empty.
      */
     @Test
@@ -135,17 +136,17 @@ public class FactoryTest {
 
     /**
      * Tests the method Factory#calculateTotalProductionInMinutes(List) to ensure it correctly
-     * calculates the total production time for a list of items, each with different operations.
-     * The test creates and uses a predefined list of items and machines, and checks if the
+     * calculates the total production time for a list of articles, each with different operations.
+     * The test creates and uses a predefined list of articles and machines, and checks if the
      * calculated production times match the expected values.
      */
     @Test
     void testCalculateTotalProductionWithDifferentItems() {
 
-        List<Item> items = Arrays.asList(
-                new Item("id1", "Low", Arrays.asList("operationA", "operationB")),
-                new Item("id2", "High", Collections.singletonList("operationC")),
-                new Item("id3", "Medium", Arrays.asList("operationA", "operationC"))
+        List<Article> articles = Arrays.asList(
+                new Article("id1", "Low", Arrays.asList("operationA", "operationB")),
+                new Article("id2", "High", Collections.singletonList("operationC")),
+                new Article("id3", "Medium", Arrays.asList("operationA", "operationC"))
         );
 
 
@@ -156,10 +157,10 @@ public class FactoryTest {
         );
 
 
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
 
-        List<Pair<String, Integer>> actual = factory.calculateTotalProductionInMinutes(factory.getItems());
+        List<Pair<String, Integer>> actual = factory.calculateTotalProductionInMinutes(factory.getArticles());
 
 
         List<Pair<String, Integer>> expected = Arrays.asList(
@@ -187,7 +188,7 @@ public class FactoryTest {
      */
     @Test
     void testCalculatePerOperationWithLoadedData() {
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
         List<Pair<String, Pair<Integer, Double>>> actual = factory.operationTimeReport(factory.getMachines());
         List<Pair<String,Double>> expected = new ArrayList<>();
@@ -199,15 +200,105 @@ public class FactoryTest {
     }
 
     /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class with preloaded data.
+     *
+     * This test verifies if the `calculateTotalOperationTimeInMinutes` method correctly calculates
+     * the total time spent on each operation based on the loaded data (machines and articles).
+     * It creates a `Factory` instance with specific articles and machines data, then calls the method
+     * to compute the total time for each operation and compares the actual results with the expected results.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithLoadedData() {
+        Factory factory = new Factory(articles, machines);
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        List<Pair<String, Integer>> expected = Arrays.asList(
+                new Pair<>("OperacaoA", 360),  // OperacaoA (120 min * 3 articles)
+                new Pair<>("OperacaoB", 160),   // OperacaoB (80 min * 2 item)
+                new Pair<>("OperacaoC", 90),   // OperacaoC (90 min * 1 item)
+                new Pair<>("OperacaoD", 130),  // OperacaoD (130 min * 1 item)
+                new Pair<>("OperacaoE", 120),   // OperacaoE (60 min * 2 item)
+                new Pair<>("OperacaoF", 150)   // OperacaoF (150 min * 1 item)
+        );
+
+        // Verifica se cada operação está correta
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i).getFirst(), actual.get(i).getFirst());
+            assertEquals(expected.get(i).getSecond(), actual.get(i).getSecond());
+        }
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class
+     * with an empty list of machines. The method is expected to return an empty list of results.
+     *
+     * This test initializes a `Factory` instance with an empty list of machines
+     * and a predefined list of articles. It then calls the
+     * `calculateTotalOperationTimeInMinutes` method and asserts that the returned list is empty.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithNoMachines() {
+        Factory factory = new Factory(articles, new ArrayList<>()); // Máquinas vazias
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        // Verifica se a lista retornada está vazia
+        assertTrue(actual.isEmpty());
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class
+     * with an empty list of articles. The method is expected to return a list of operations with 0 time.
+     *
+     * This test initializes a `Factory` instance with an empty list of articles and a predefined list of machines.
+     * It then calls the `calculateTotalOperationTimeInMinutes` method and checks that the time for all operations is 0.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithNoItems() {
+        Factory factory = new Factory(new ArrayList<>(), machines); // Itens vazios
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        // Verifica se o tempo para cada operação é 0
+        for (Pair<String, Integer> pair : actual) {
+            assertEquals(0, (int) pair.getSecond());
+        }
+    }
+
+    /**
+     * Tests the `calculateTotalOperationTimeInMinutes` method of the `Factory` class
+     * with articles that have no operations. The method is expected to return 0 time for all operations.
+     *
+     * This test initializes a `Factory` instance with articles that don't have any operations
+     * and checks that the total time for operations remains 0.
+     */
+    @Test
+    void testCalculateTotalOperationTimeInMinutesWithItemsHavingNoOperations() {
+        List<Article> emptyOperationArticles = Arrays.asList(
+                new Article("it1", "High", new ArrayList<>()),  // Sem operações
+                new Article("it2", "Low", new ArrayList<>())    // Sem operações
+        );
+        Factory factory = new Factory(emptyOperationArticles, machines);
+
+        List<Pair<String, Integer>> actual = factory.calculateTotalOperationTimeInMinutes();
+
+        // Verifica se o tempo para cada operação é 0
+        for (Pair<String, Integer> pair : actual) {
+            assertEquals(0, (int) pair.getSecond());
+        }
+    }
+
+    /**
      * Tests the `recordMachineProcessingFlow` method of the `Factory` class.
      * This test verifies that the machine processing flow is recorded correctly
-     * based on the loaded data (items and machines).
+     * based on the loaded data (articles and machines).
      * The expected output is a map where the keys are machine IDs and the values
      * are maps of item IDs and the count of operations performed on each item.
      */
     @Test
     void testRecordMachineProcessingFlow() {
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
         Map<String, Map<String, Integer>> actual = factory.recordMachineProcessingFlow();
 
@@ -314,7 +405,7 @@ public class FactoryTest {
      */
     @Test
     void testTotalExecutionTime() {
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
         int actual = factory.totalExecutionTime();
         int expected = 3395; // Substitua pelo valor total de execução esperado
@@ -327,14 +418,14 @@ public class FactoryTest {
      * Tests the `trackItemMachineSequence` method of the `Factory` class.
      * This test verifies if the `trackItemMachineSequence` method correctly tracks
      * the sequence of machines for each item based on the loaded data.
-     * It creates a `Factory` instance with specific items and machines data,
+     * It creates a `Factory` instance with specific articles and machines data,
      * then calls the method to compute the sequences and compares the actual results
      * with the expected results.
      * Expected results are predefined mappings of item IDs to lists of machine IDs.
      */
     @Test
     void testTrackItemMachineSequence() {
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
         Map<String, List<String>> actual = factory.trackItemMachineSequence();
 
@@ -384,7 +475,7 @@ public class FactoryTest {
      */
     @Test
     void testGetSortedMachineProcessingFlow() {
-        Factory factory = new Factory(items, machines);
+        Factory factory = new Factory(articles, machines);
 
         Map<String, Map<String, Integer>> unsortedFlow = factory.recordMachineProcessingFlow();
 
@@ -400,7 +491,7 @@ public class FactoryTest {
     /**
      * Tests the {@link Factory#displayMachineWithMostFlowDependency(Map)} method.
      * It verifies that the machine with the most flow dependency is correctly identified.
-     * The test creates a factory with predefined items and machines, calculates the machine flow map,
+     * The test creates a factory with predefined articles and machines, calculates the machine flow map,
      * and checks that the machine with the most transitions (flow dependencies) is correctly returned.
      * In this test case, the machine "m10" is expected to have the most flow dependencies with a total of 4 transitions.
      * Expected result:
@@ -410,7 +501,7 @@ public class FactoryTest {
     @Test
     void testDisplayMachineWithMostFlowDependency() {
         // Create the factory and display the machine with the most flow dependency
-        Factory factory = new Factory(items,machines);
+        Factory factory = new Factory(articles,machines);
 
         Map<String, Map<String, Integer>> machineFlowMap = factory.recordMachineProcessingFlow() ;
 
@@ -420,5 +511,6 @@ public class FactoryTest {
 
         assertEquals(expected, actual);
     }
+
 
 }

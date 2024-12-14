@@ -1,6 +1,6 @@
 package esinf.utils;
 
-import esinf.model.Item;
+import esinf.model.Article;
 import esinf.model.Machine;
 import junit.framework.TestCase;
 
@@ -26,7 +26,7 @@ public class DataLoaderTest extends TestCase {
      *
      * @throws IOException if an I/O error occurs during file manipulation.
      */
-    public void testLoadItemsFromCsv() {
+    public void testLoadArticlesFromCsv() {
         try (FileWriter file = new FileWriter("testItems.csv")) {
             file.write("id,priority\n");
             file.write("testId1,testPriority1\n");
@@ -34,11 +34,11 @@ public class DataLoaderTest extends TestCase {
             fail("Exception thrown during test: " + e.toString());
         }
 
-        List<Item> items = DataLoader.loadItemsFromCsv("testItems.csv");
+        List<Article> articles = DataLoader.loadArticlesFromCsv("testItems.csv");
 
-        assertEquals(1, items.size());
-        assertEquals("testId1", items.get(0).getId());
-        assertEquals("testPriority1", items.get(0).getPriority());
+        assertEquals(1, articles.size());
+        assertEquals("testId1", articles.get(0).getId());
+        assertEquals("testPriority1", articles.get(0).getPriority());
 
         // Remove the test file from the project
         deleteFile(new File("testItems.csv"));

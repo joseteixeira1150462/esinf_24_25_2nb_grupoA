@@ -1,8 +1,6 @@
 package esinf;
 
-import esinf.model.Factory;
-import esinf.model.Item;
-import esinf.model.Machine;
+import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
 
@@ -20,7 +18,7 @@ public class App {
      * This file is expected to have entries representing
      * items with their respective identifier, priority, and list of operations.
      */
-    private static final String ITEMS_CSV_FILE_PATH = "src/dataFiles/artigos.csv";
+    private static final String ARTICLES_CSV_FILE_PATH = "project/src/dataFiles/articles.csv";
     /**
      * The file path to the CSV file containing machine data.
      * This constant is used when loading machine information
@@ -28,7 +26,15 @@ public class App {
      * represents a machine with attributes such as an identifier,
      * operation name, and execution time.
      */
-    private static final String MACHINES_CSV_FILE_PATH = "src/dataFiles/maquinas.csv";
+    private static final String MACHINES_CSV_FILE_PATH = "project/src/dataFiles/workstations.csv";
+
+    private static final String ITEMS_CSV_FILE_PATH = "project/src/dataFiles/items.csv";
+
+    private static final String OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/operations.csv";
+
+  //  private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
+
+    private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/activities_v0.csv";
 
     /**
      * The main method serves as the entry point of the application.
@@ -38,11 +44,17 @@ public class App {
      * @param args command-line arguments passed to the application
      */
     public static void main(String[] args) {
-        List<Item> items = DataLoader.loadItemsFromCsv(ITEMS_CSV_FILE_PATH);
-        List<Machine> machines = DataLoader.loadMachinesFromCsv(MACHINES_CSV_FILE_PATH);
 
-        if (items.isEmpty()) {
-            System.err.println("No items loaded. Please check the CSV file path.");
+        List<Article> articles = DataLoader.loadArticlesFromCsv(ARTICLES_CSV_FILE_PATH);
+        List<Machine> machines = DataLoader.loadMachinesFromCsv(MACHINES_CSV_FILE_PATH);
+        List<Item> items = DataLoader.loadItemsFromCSV(ITEMS_CSV_FILE_PATH);
+        List<Operation> operations = DataLoader.loadOperationsFromCSV(OPERATIONS_CSV_FILE_PATH);
+
+       // ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH,items,operations);
+        ActivityGraph activityVertexGraph = DataLoader.loadActivityMapGraphFromCSV(ACTIVITIES_CSV_FILE_PATH);
+
+        if (articles.isEmpty()) {
+            System.err.println("No articles loaded. Please check the CSV file path.");
             return;
         }
         if (machines.isEmpty()) {
@@ -50,16 +62,36 @@ public class App {
             return;
         }
 
-        Factory factory = new Factory();
-        factory.setItems(items);
-        factory.setMachines(machines);
+        if (items.isEmpty()) {
+            System.err.println("No items loaded. Please check the CSV path.");
+            return;
+        }
 
-        printFactoryDetails(factory); //USEI01
-        printProductionReport(factory); //USEI03
-        printExecutionReport(factory); //USEI05
-        printRecordMachineProcessingFlow(factory); //USEI07
-        //USEI08 missing
+        if (operations.isEmpty()) {
+            System.err.println("No operations loaded. Please check the CSV path.");
+            return;
+        }
+
+        if(activityVertexGraph.numVertices()== 0){
+            System.err.println("No activity graph loaded. Please check the CSV path.");
+            return;
+        }
+
+        Factory factory = new Factory();
+        factory.setArticles(articles);
+        factory.setMachines(machines);
+        factory.setItems(items);
+        factory.setOperations(operations);
+
+
+        System.out.println("====== Sprint3 --- USEI17 - Building PERT-CPM Graph from activities.csv ======");
+        System.out.println("#### Graph Details ####");
+        activityVertexGraph.graphDetails();
+        System.out.println("#######################\n");
+        System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
+        System.out.println(activityVertexGraph);
     }
+
 
     /**
      * Prints details of the given Factory, including its items and machines.
@@ -68,11 +100,21 @@ public class App {
      */
     private static void printFactoryDetails(Factory factory) {
         System.out.println("==========Factory==========");
-        System.out.println("*******Items*******");
-        factory.getItems().forEach(System.out::println);
+        System.out.println("*******Articles*******");
+        factory.getArticles().forEach(System.out::println);
 
         System.out.println("\n*******Machines*******");
         factory.getMachines().forEach(System.out::println);
+
+    }
+
+    private static void printFactoryDetailsv2(Factory factory) {
+        System.out.println("==========Factory==========");
+        System.out.println("*******Items*******");
+        factory.getItems().forEach(System.out::println);
+
+        System.out.println("\n*******Operations*******");
+        factory.getOperations().forEach(System.out::println);
     }
 
     /**
@@ -82,9 +124,9 @@ public class App {
      */
     private static void printProductionReport(Factory factory) {
         System.out.println("\n====== Sprint1 --- USEI03 - Report of the total production time");
-        System.out.printf("%n%-12s | %s%n", "Item ID", "Total production time (min)");
+        System.out.printf("%n%-12s | %s%n", "Article ID", "Total production time (min)");
         System.out.println("--------------------------------------------------------");
-        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalProductionInMinutes(factory.getItems());
+        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalProductionInMinutes(factory.getArticles());
 
 
         for (Pair<String, Integer> pair : totalProductionTimeReport) {
@@ -94,24 +136,20 @@ public class App {
     }
     /**
      * Prints a report of the execution time rate of machines, sorted by their percentage contribution to total execution time.
-     *
      * This method generates and displays a formatted report that includes:
      * - The Machine ID
      * - The execution time in minutes for each machine
      * - The percentage contribution of each machine to the total execution time
-     *
      * The report also identifies:
      * - The machine with the highest contribution to execution time percentage
      * - The machine with the lowest contribution to execution time percentage
      *
      * @param factory the Factory object containing the machine data and execution time information
-     *
      * The method performs the following tasks:
      * 1. Retrieves and formats execution time data for each machine.
      * 2. Prints a structured table displaying each machine's execution time and its percentage contribution.
      * 3. Calculates and displays the total execution time across all machines.
      * 4. Identifies and displays the machines with the highest and lowest execution time contributions.
-     *
      * Time Complexity: O(n log n) due to sorting operations, where n is the number of machines.
      * Space Complexity: O(n) to store the percentage contribution data for reporting.
      */
@@ -141,19 +179,16 @@ public class App {
     }
     /**
      * Produces a listing representing the flow dependency between machines, sorted in descending order of processed items.
-     *
      * This method generates and prints the machine processing flow, which includes:
      * - A listing of the sequence of machines processing each item, sorted by the item IDs in ascending order (ignoring the 'it' prefix).
      * - A listing of each machine and the machines it transitions to, along with the count of transitions, sorted by the number of transitions in descending order.
      * - The machine with the most flow dependency (i.e., the machine that transitions the most to other machines).
      *
-     * @param factory the Factory object containing the items and machines data
-     *
+     * @param factory the Factory object containing the items and machines data.
      * The method performs the following tasks:
      * 1. Tracks the sequence of machines processing each item and prints the flow.
      * 2. Sorts the machine flow dependency based on the number of transitions and prints the flow.
      * 3. Identifies and prints the machine with the most flow dependency.
-     *
      * Time Complexity: O(n^2) due to sorting operations and nested loops.
      * Space Complexity: O(n) where n is the number of items and machines processed.
      */
@@ -206,7 +241,23 @@ public class App {
     }
 
 
+    private static void printOperationTimeReport(Factory factory) {
+        System.out.println("\n====== Sprint1 --- USEI04 - Report of the total operation time");
+        System.out.printf("%n%-12s %s%n", "Operation", "Total operation time (min)");
+        System.out.println("--------------------------------------------------------");
+        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalOperationTimeInMinutes();
 
 
+        for (Pair<String, Integer> pair : totalProductionTimeReport) {
+            System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
+        }
+    }
+
+    //US8
+    private static void runProcessingSimulation(Factory factory) {
+        System.out.println("\n====== US8 - Simulação de Processamento por Prioridade ======");
+        factory.runSimulation();
+        System.out.println("============================== Fim da Simulação ==============================");
+    }
 
 }
