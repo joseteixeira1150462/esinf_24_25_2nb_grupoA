@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class ActivityVertexTest {
     @Test
     void testConstructorAndGetters() {
-        ActivityVertex activity = new ActivityVertex(1, "Start", 2, "hours", 100.0, "USD");
+        ActivityVertex activity = new ActivityVertex("A", "Start", 2, "hours", 100.0, "USD");
 
-        assertEquals(1, activity.getId(), "ID should match the value passed in the constructor.");
+        assertEquals("A", activity.getId(), "ID should match the value passed in the constructor.");
         assertEquals("Start", activity.getDescription(), "Description should match the value passed in the constructor.");
         assertEquals(2, activity.getDuration(), "Duration should match the value passed in the constructor.");
         assertEquals("hours", activity.getDurationUnit(), "Duration unit should match the value passed in the constructor.");
@@ -21,16 +21,16 @@ public class ActivityVertexTest {
 
     @Test
     void testSetters() {
-        ActivityVertex activity = new ActivityVertex(1, "Start", 2, "hours", 100.0, "USD");
+        ActivityVertex activity = new ActivityVertex("A", "Start", 2, "hours", 100.0, "USD");
 
-        activity.setId(2);
+        activity.setId("B");
         activity.setDescription("Intermediate");
         activity.setDuration(3);
         activity.setDurationUnit("days");
         activity.setCost(200.0);
         activity.setCostUnit("EUR");
 
-        assertEquals(2, activity.getId(), "ID should reflect the updated value.");
+        assertEquals("B", activity.getId(), "ID should reflect the updated value.");
         assertEquals("Intermediate", activity.getDescription(), "Description should reflect the updated value.");
         assertEquals(3, activity.getDuration(), "Duration should reflect the updated value.");
         assertEquals("days", activity.getDurationUnit(), "Duration unit should reflect the updated value.");
@@ -40,16 +40,16 @@ public class ActivityVertexTest {
 
     @Test
     void testToString() {
-        ActivityVertex activity = new ActivityVertex(1, "Start", 2, "hours", 100.0, "USD");
-        String expected = "ActivityVertex [ID: 1, Description: Start, Duration: 2 hours, Cost: 100.0 USD]";
+        ActivityVertex activity = new ActivityVertex("A", "Start", 2, "hours", 100.0, "USD");
+        String expected = "ActivityVertex [ID: A, Description: Start, Duration: 2 hours, Cost: 100.0 USD]";
         assertEquals(expected, activity.toString(), "toString output should match the expected format.");
     }
 
     @Test
     void testEqualsAndHashCode() {
-        ActivityVertex activity1 = new ActivityVertex(1, "Start", 2, "hours", 100.0, "USD");
-        ActivityVertex activity2 = new ActivityVertex(1, "Start", 2, "hours", 100.0, "USD");
-        ActivityVertex activity3 = new ActivityVertex(2, "Intermediate", 3, "days", 150.0, "EUR");
+        ActivityVertex activity1 = new ActivityVertex("A", "Start", 2, "hours", 100.0, "USD");
+        ActivityVertex activity2 = new ActivityVertex("A", "Start", 2, "hours", 100.0, "USD");
+        ActivityVertex activity3 = new ActivityVertex("B", "Intermediate", 3, "days", 150.0, "EUR");
 
         assertEquals(activity1, activity2, "Activities with identical attributes should be equal.");
         assertNotEquals(activity1, activity3, "Activities with different attributes should not be equal.");

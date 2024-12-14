@@ -34,7 +34,7 @@ public class App {
 
   //  private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
 
-    private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/activities_v0.csv";
+    private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/small_project.csv";
 
     /**
      * The main method serves as the entry point of the application.

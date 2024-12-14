@@ -189,42 +189,58 @@ public class DataLoader {
         try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
             br.readLine();
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(";");
+                String[] fields = line.split(",");
 
                 // Lê os dados da atividade
-                int id = Integer.parseInt(fields[0]); // Lê o act_id
+                String id = fields[0]; // Lê o act_id
                 String description = fields[1];
                 int duration = Integer.parseInt(fields[2]);
                 String durationUnit = fields[3];
                 double cost = Double.parseDouble(fields[4]);
-                String costUnit = fields[5];
+                String costUnit = "€";
 
                 // Cria o vértice de atividade com os dados do CSV e adiciona a actividade
                 ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
                 graph.addActivity(activity);
 
-                // Lê as dependências (se existirem)
-                for (int i = 6; i < fields.length; i++) {
+                for (int i = 5; i < fields.length; i++) {
                     if (!fields[i].isEmpty()) {
-                        int dependencyId = Integer.parseInt(fields[i]);
-                        ActivityVertex dependency = findVertexById(graph, dependencyId); // Busca o vértice de dependência
-                        if (dependency != null) {
-                            graph.addDependency(dependency, activity, "Dependency Activity");  // Usa o método addDependency
+                        String dependenciesField = fields[i];
+
+                        // Verifica se o campo contém aspas e remove-as, se necessário
+                        if (dependenciesField.startsWith("\"") && dependenciesField.endsWith("\"")) {
+                            dependenciesField = dependenciesField.substring(1, dependenciesField.length() - 1);
+                        }
+
+                        // Divide as dependências por vírgula
+                        String[] dependencies = dependenciesField.split(",");
+
+                        for (String dependencyId : dependencies) {
+                            dependencyId = dependencyId.trim().replace("\"", ""); // Remove espaços em branco e as aspas
+
+                            // Busca o vértice de dependência
+                            ActivityVertex dependency = findVertexById(graph, dependencyId);
+                                if (dependency != null) {
+                                // Adiciona a dependência ao grafo
+                                graph.addDependency(dependency, activity, "Dependency Activity");
+                                } else {
+                                    System.err.println("Dependência não encontrada para ID: " + dependencyId);
+                                }
+                            }
                         }
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        return graph;
+            return graph;
     }
 
     // Metodo para buscar um vértice por ID dentro do grafo
-    private static ActivityVertex findVertexById(ActivityGraph graph, int id) {
+    private static ActivityVertex findVertexById(ActivityGraph graph, String id) {
         for (ActivityVertex vertex : graph.vertices()) {
-            if (vertex.getId() == id) {
+            if (vertex.getId().equals(id)) {
                 return vertex;
             }
         }

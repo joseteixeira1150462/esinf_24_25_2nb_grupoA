@@ -73,6 +73,7 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
                 sb.append("    ").append(blueColor).append("<- Dependency Activity [ID: ").append(source.getId())
                         .append(", Description: ").append(source.getDescription())
                         .append(", Cost: ").append(source.getCost())
+                        .append(" ").append(vertex.getCostUnit())
                         .append("]").append(resetColor).append("\n");
                 hasIncoming = true;
             }
@@ -83,12 +84,13 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
             // Mostrar dependências de saída
             boolean hasOutgoing = false;
             for (Edge<ActivityVertex, String> edge : this.outgoingEdges(vertex)) {
-                ActivityVertex dest = (ActivityVertex) edge.getVDest();
+                ActivityVertex dest = edge.getVDest();
                 // Incluindo o custo na label da aresta
                 sb.append("    ").append(yellowColor).append("-> Dependency Activity [ID: ").append(dest.getId())
                         .append(", Description: ").append(dest.getDescription())
-                        .append(", Cost: ").append(dest.getCost())  // Aqui é onde você exibe o custo da aresta
-                        .append("]").append(resetColor).append("\n");
+                        .append(", Cost: ").append(dest.getCost())
+                        .append(" ").append(vertex.getCostUnit()).append("]")
+                        .append(resetColor).append("\n");
                 hasOutgoing = true;
             }
             if (!hasOutgoing) {
