@@ -36,8 +36,7 @@ Como utilizador, pretendo importar dados de um arquivo CSV e criar um grafo PERT
        // Exibe detalhes do grafo
        public void graphDetails() {
            System.out.println("Vertices: " + this.numVertices() +
-               "
-        Edges: " + this.numEdges());
+               "Edges: " + this.numEdges());
        }
 
        @Override
@@ -67,8 +66,7 @@ Como utilizador, pretendo importar dados de um arquivo CSV e criar um grafo PERT
                    sb.append("    ").append(blueColor).append("<- Dependency Activity [ID: ").append(source.getId())
                        .append(", Description: ").append(source.getDescription())
                        .append(", Cost: ").append(source.getCost())
-                       .append("]").append(resetColor).append("
-                    ");
+                       .append("]").append(resetColor).append("");
                    hasIncoming = true;
                }
                if (!hasIncoming) {
