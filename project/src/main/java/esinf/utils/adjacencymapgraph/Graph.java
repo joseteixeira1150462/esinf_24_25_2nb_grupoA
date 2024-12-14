@@ -41,8 +41,8 @@ public class Graph<V,E> implements GraphInterface<V,E> {
     
     public Iterable<V> adjVertices(V vert){ 
         
-        if (!validVertex(vert)) 
-           return null;
+        if (!validVertex(vert))
+            Collections.emptyList();
         
         Vertex<V,E> vertex = vertices.get(vert); 
         
@@ -53,9 +53,16 @@ public class Graph<V,E> implements GraphInterface<V,E> {
     public int numEdges(){ return numEdge; }
     
     
-    public Iterable<Edge<V,E>> edges() { 
-        
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Iterable<Edge<V,E>> edges() {
+
+        List<Edge<V, E>> edgeList = new ArrayList<>();
+
+        for (Vertex<V, E> vertex : vertices.values()) {
+            for (Edge<V, E> edge : vertex.getAllOutEdges()) {
+                edgeList.add(edge);
+            }
+        }
+        return edgeList;
     }
     
     public Edge<V,E> getEdge(V vOrig, V vDest){

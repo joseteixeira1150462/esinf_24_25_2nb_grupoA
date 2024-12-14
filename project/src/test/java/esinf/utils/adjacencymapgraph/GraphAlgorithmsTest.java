@@ -221,11 +221,11 @@ public class GraphAlgorithmsTest {
         assertEquals("There should be a path to every vertex", completeMap.numVertices(), paths.size());
         assertEquals("Number of nodes should be 1 if source and vertex are the same", 1, paths.get(completeMap.getKey("Porto")).size());
         assertEquals("Path to Lisbon", Arrays.asList("Porto","Aveiro","Coimbra","Lisboa"), paths.get(completeMap.getKey("Lisboa")));
-	assertEquals("Path to Castelo Branco", Arrays.asList("Porto","Aveiro","Viseu","Guarda","Castelo Branco"), paths.get(completeMap.getKey("Castelo Branco")));
+	    assertEquals("Path to Castelo Branco", Arrays.asList("Porto","Aveiro","Viseu","Guarda","Castelo Branco"), paths.get(completeMap.getKey("Castelo Branco")));
         assertEquals("Path between Porto and Castelo Branco should be 335 Km", 335, dists.get(completeMap.getKey("Castelo Branco")),0.01);
 
         //Changing Edge: Aveiro-Viseu with Edge: Leiria-C.Branco 
-        //should change shortest path between Porto and Castelo Branco        
+        //should change the shortest path between Porto and Castelo Branco
         completeMap.removeEdge("Aveiro", "Viseu");
         completeMap.insertEdge("Leiria","Castelo Branco","A23",170);
         GraphAlgorithms.shortestPaths(completeMap,"Porto",paths,dists);
