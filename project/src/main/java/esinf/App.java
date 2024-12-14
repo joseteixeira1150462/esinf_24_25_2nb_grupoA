@@ -3,7 +3,6 @@ package esinf;
 import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
-import esinf.utils.adjacencymapgraph.Graph;
 
 
 import java.util.*;
@@ -33,7 +32,7 @@ public class App {
 
     private static final String OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/operations.csv";
 
-    private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
+  //  private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
 
     private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/activities_v0.csv";
 
@@ -51,7 +50,7 @@ public class App {
         List<Item> items = DataLoader.loadItemsFromCSV(ITEMS_CSV_FILE_PATH);
         List<Operation> operations = DataLoader.loadOperationsFromCSV(OPERATIONS_CSV_FILE_PATH);
 
-        ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH,items,operations);
+       // ProductionTree tree = DataLoader.loadProductionTreeFromCSV(BILL_OF_OPERATIONS_CSV_FILE_PATH,items,operations);
         ActivityGraph activityVertexGraph = DataLoader.loadActivityMapGraphFromCSV(ACTIVITIES_CSV_FILE_PATH);
 
         if (articles.isEmpty()) {
@@ -91,88 +90,7 @@ public class App {
         System.out.println("#######################\n");
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
-
-
-
-//        //printFactoryDetails(factory);
-//        printFactoryDetailsv2(factory);
-//
-//        System.out.println("\n====== Sprint2 --- USEI08 - Build the complete production tree of a product.");
-//        System.out.println("*******Boo Operations (DFS Approach)*******");
-//        tree.printDFSTree();
-//        System.out.println("====== Sprint2 --- USEI09 - Efficiently search for specific operations or materials.");
-//
-//        String id_parentRoot = "20";
-//        String name_parentRoot = "varnish bench";
-//
-//        String id_child = "1010";
-//        String name_child = "wood 3cm";
-//
-//        System.out.println("Search node by id -> "+id_child+"\n"+tree.searchNode(id_child));
-//        System.out.println("Search node by id [root] -> "+id_parentRoot+"\n"+tree.searchNode(id_parentRoot));
-//        System.out.println("Search node by name -> "+name_child+"\n"+tree.searchNode(name_child));
-//        System.out.println("Search node by name [root] -> "+name_parentRoot+"\n"+tree.searchNode(name_parentRoot));
-//
-//
-//        System.out.println("\n====== Sprint2 --- USEI13 -  Calculate the total quantity of materials and the number of times each operation is performed");
-//        tree.calculateProductionTotals() ;
-//
-//
-//        System.out.println("\n====== Sprint2 --- USEI11 - Prioritize Quality Checks");
-//        Queue<QualityCheck> qc = tree.getQualityCheckSequence();
-//        int priority = 1;
-//        while(qc.peek() != null) {
-//            QualityCheck op = qc.poll();
-//            System.out.println("priority " + priority + ": level:" + op.getLevel() +  " operation " + op.getOperation());
-//            priority += 1;
-//        }
-//
-//        // printProductionReport(factory);
-//        // printOperationTimeReport(factory);
-//        // printExecutionReport(factory);
-//        // runProcessingSimulation(factory);
-//
-//        //US12
-//        System.out.println("\n =====US12 - Update Material Quantity ======");
-//        String item = "finished bench";
-//        double quantity = 2.0;
-//        System.out.println(tree.updateNodeQuantityWithCascade(item, quantity));
-//
-//
-//        // ===== USEI14 - Identify and prioritize critical path operations =====
-//        // Set the depths of all operations in the tree
-//        System.out.println("\n====== Sprint2 --- USEI14 - Identify and prioritize critical path operations.");
-//        tree.setNodeDepths(tree.getRoot(), 0); // Start from root with depth 0
-//        // Tree
-//        //tree.printDFSTree();
-//        // Prioritize critical path and display operations based on depth
-//        tree.prioritizeCriticalPath();
-//
-//        //===== USEI14 Put the components into production in the simulator (AVL Tree)
-//        System.out.println("\n====== USEI15 - Put the components into production in the simulator (AVL Tree) ======");
-//        AVLTree avlTree = tree.buildBooTree();
-//
-//        if (avlTree == null) {
-//            System.err.println("Error: Failed to build AVL Tree. Check production tree data.");
-//            return;
-//        }
-//
-//        System.out.println("\n--- AVL Tree Structure ---");
-//        avlTree.printAVLTree();
-//
-//        System.out.println("\n--- Production Sequence (By Dependency Level) ---");
-//        List<ProductionNode> productionOrder = avlTree.simulateProduction();
-//        for (ProductionNode node : productionOrder) {
-//            // Generate indentation based on depth for visual hierarchy
-//            String indentation = new String(new char[node.getDepth() * 4]).replace('\0', ' ');
-//            System.out.println(indentation + "→ ProductionNode { " +
-//                    "ID: " + node.getId() +
-//                    ", Name: '" + node.getName() + '\'' +
-//                    ", Type: '" + node.getType() + '\'' +
-//                    ", Quantity: " + node.getQuantity() +
-//                    ", Depth: " + node.getDepth() + " }");
-//        }
-        }
+    }
 
 
     /**
@@ -218,24 +136,20 @@ public class App {
     }
     /**
      * Prints a report of the execution time rate of machines, sorted by their percentage contribution to total execution time.
-     *
      * This method generates and displays a formatted report that includes:
      * - The Machine ID
      * - The execution time in minutes for each machine
      * - The percentage contribution of each machine to the total execution time
-     *
      * The report also identifies:
      * - The machine with the highest contribution to execution time percentage
      * - The machine with the lowest contribution to execution time percentage
      *
      * @param factory the Factory object containing the machine data and execution time information
-     *
      * The method performs the following tasks:
      * 1. Retrieves and formats execution time data for each machine.
      * 2. Prints a structured table displaying each machine's execution time and its percentage contribution.
      * 3. Calculates and displays the total execution time across all machines.
      * 4. Identifies and displays the machines with the highest and lowest execution time contributions.
-     *
      * Time Complexity: O(n log n) due to sorting operations, where n is the number of machines.
      * Space Complexity: O(n) to store the percentage contribution data for reporting.
      */
@@ -265,19 +179,16 @@ public class App {
     }
     /**
      * Produces a listing representing the flow dependency between machines, sorted in descending order of processed items.
-     *
      * This method generates and prints the machine processing flow, which includes:
      * - A listing of the sequence of machines processing each item, sorted by the item IDs in ascending order (ignoring the 'it' prefix).
      * - A listing of each machine and the machines it transitions to, along with the count of transitions, sorted by the number of transitions in descending order.
      * - The machine with the most flow dependency (i.e., the machine that transitions the most to other machines).
      *
-     * @param factory the Factory object containing the items and machines data
-     *
+     * @param factory the Factory object containing the items and machines data.
      * The method performs the following tasks:
      * 1. Tracks the sequence of machines processing each item and prints the flow.
      * 2. Sorts the machine flow dependency based on the number of transitions and prints the flow.
      * 3. Identifies and prints the machine with the most flow dependency.
-     *
      * Time Complexity: O(n^2) due to sorting operations and nested loops.
      * Space Complexity: O(n) where n is the number of items and machines processed.
      */
@@ -334,10 +245,10 @@ public class App {
         System.out.println("\n====== Sprint1 --- USEI04 - Report of the total operation time");
         System.out.printf("%n%-12s %s%n", "Operation", "Total operation time (min)");
         System.out.println("--------------------------------------------------------");
-        List<Pair<String, Integer>> totalOroductionTimeReport = factory.calculateTotalOperationTimeInMinutes();
+        List<Pair<String, Integer>> totalProductionTimeReport = factory.calculateTotalOperationTimeInMinutes();
 
 
-        for (Pair<String, Integer> pair : totalOroductionTimeReport) {
+        for (Pair<String, Integer> pair : totalProductionTimeReport) {
             System.out.printf("%-12s %d%n", pair.getFirst(), pair.getSecond());
         }
     }
