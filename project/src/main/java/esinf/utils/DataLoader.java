@@ -186,55 +186,70 @@ public class DataLoader {
         ActivityGraph graph = new ActivityGraph();
         String line;
 
+        // Adiciona o vértice Start
+        ActivityVertex startVertex = new ActivityVertex("Start", "Start of process", 0, "", 0, "€");
+        graph.addActivity(startVertex);
+
         try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
-            br.readLine();
+            br.readLine(); // Ignora o cabeçalho
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                // Lê os dados da atividade
-                String id = fields[0]; // Lê o act_id
+                // Criação do vértice de atividade
+                String id = fields[0];
                 String description = fields[1];
                 int duration = Integer.parseInt(fields[2]);
                 String durationUnit = fields[3];
                 double cost = Double.parseDouble(fields[4]);
                 String costUnit = "€";
 
-                // Cria o vértice de atividade com os dados do CSV e adiciona a actividade
                 ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
                 graph.addActivity(activity);
 
+                // Lê e adiciona dependências
                 for (int i = 5; i < fields.length; i++) {
                     if (!fields[i].isEmpty()) {
                         String dependenciesField = fields[i];
 
-                        // Verifica se o campo contém aspas e remove-as, se necessário
                         if (dependenciesField.startsWith("\"") && dependenciesField.endsWith("\"")) {
                             dependenciesField = dependenciesField.substring(1, dependenciesField.length() - 1);
                         }
 
-                        // Divide as dependências por vírgula
                         String[] dependencies = dependenciesField.split(",");
-
                         for (String dependencyId : dependencies) {
-                            dependencyId = dependencyId.trim().replace("\"", ""); // Remove espaços em branco e as aspas
-
-                            // Busca o vértice de dependência
+                            dependencyId = dependencyId.trim().replace("\"", "");
                             ActivityVertex dependency = findVertexById(graph, dependencyId);
-                                if (dependency != null) {
-                                // Adiciona a dependência ao grafo
+                            if (dependency != null) {
                                 graph.addDependency(dependency, activity, "Dependency Activity");
-                                } else {
-                                    System.err.println("Dependência não encontrada para ID: " + dependencyId);
-                                }
                             }
                         }
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
-            return graph;
+            // Conecta o Start às atividades iniciais (sem dependências de entrada)
+            for (ActivityVertex vertex : graph.vertices()) {
+                if (graph.inDegree(vertex) == 0 && !vertex.equals(startVertex)) {
+                    graph.addDependency(startVertex, vertex, "Start Dependency");
+                }
+            }
+
+            // Adiciona o vértice End
+            ActivityVertex endVertex = new ActivityVertex("End", "End of process", 0, "", 0, "€");
+            graph.addActivity(endVertex);
+
+            // Conecta o End às atividades finais (sem dependências de saída)
+            for (ActivityVertex vertex : graph.vertices()) {
+                if (graph.outDegree(vertex) == 0 && !vertex.equals(startVertex) && !vertex.equals(endVertex)) {
+                    graph.addDependency(vertex, endVertex, "End Dependency");
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return graph;
     }
 
     // Metodo para buscar um vértice por ID dentro do grafo

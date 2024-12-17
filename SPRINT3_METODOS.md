@@ -107,48 +107,78 @@ Como utilizador, pretendo importar dados de um arquivo CSV e criar um grafo PERT
 
 3. **`DataLoader.java`**
     - Esta classe é a responsável pela leitura dos ficheiros CSV e a modelação dos mesmos nas várias estruturas de dados.
-      ##### **Método Implementado**
-        O método abaixo realiza a leitura do ficheiro `activities.csv` e constrói um grafo orientado representando as atividades e as suas respetivas dependências.
+      ### **Método Implementado**
+        O método abaixo realiza a leitura do ficheiro `small_project.csv` ou `larger project`e constrói um grafo orientado representando as atividades e as suas respetivas dependências.
         ```java
         // Leitura do ficheiro activities.csv e construção do grafo orientado
-        public static ActivityGraph loadActivityMapGraphFromCSV(String activitiesCsvFilePath) {
-            ActivityGraph graph = new ActivityGraph();
-            String line;
+          public static ActivityGraph loadActivityMapGraphFromCSV(String activitiesCsvFilePath) {
+        ActivityGraph graph = new ActivityGraph();
+        String line;
 
-            try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
-                br.readLine();
-                while ((line = br.readLine()) != null) {
-                    String[] fields = line.split(";");
+        // Adiciona o vértice Start
+        ActivityVertex startVertex = new ActivityVertex("Start", "Start of process", 0, "", 0, "€");
+        graph.addActivity(startVertex);
 
-                    // Lê os dados da atividade
-                    int id = Integer.parseInt(fields[0]); // Lê o act_id
-                    String description = fields[1];
-                    int duration = Integer.parseInt(fields[2]);
-                    String durationUnit = fields[3];
-                    double cost = Double.parseDouble(fields[4]);
-                    String costUnit = fields[5];
+        try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
+            br.readLine(); // Ignora o cabeçalho
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
 
-                    // Cria o vértice de atividade com os dados do CSV e adiciona a atividade
-                    ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
-                    graph.addActivity(activity);
+                // Criação do vértice de atividade
+                String id = fields[0];
+                String description = fields[1];
+                int duration = Integer.parseInt(fields[2]);
+                String durationUnit = fields[3];
+                double cost = Double.parseDouble(fields[4]);
+                String costUnit = "€";
 
-                    // Lê as dependências (se existirem)
-                    for (int i = 6; i < fields.length; i++) {
-                        if (!fields[i].isEmpty()) {
-                            int dependencyId = Integer.parseInt(fields[i]);
-                            ActivityVertex dependency = findVertexById(graph, dependencyId); // Busca o vértice de dependência
+                ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
+                graph.addActivity(activity);
+
+                // Lê e adiciona dependências
+                for (int i = 5; i < fields.length; i++) {
+                    if (!fields[i].isEmpty()) {
+                        String dependenciesField = fields[i];
+
+                        if (dependenciesField.startsWith("\"") && dependenciesField.endsWith("\"")) {
+                            dependenciesField = dependenciesField.substring(1, dependenciesField.length() - 1);
+                        }
+
+                        String[] dependencies = dependenciesField.split(",");
+                        for (String dependencyId : dependencies) {
+                            dependencyId = dependencyId.trim().replace("\"", "");
+                            ActivityVertex dependency = findVertexById(graph, dependencyId);
                             if (dependency != null) {
-                                graph.addDependency(dependency, activity, "Dependency Activity");  // Usa o método addDependency
+                                graph.addDependency(dependency, activity, "Dependency Activity");
                             }
                         }
                     }
                 }
+            }
+
+            // Conecta o Start às atividades iniciais (sem dependências de entrada)
+            for (ActivityVertex vertex : graph.vertices()) {
+                if (graph.inDegree(vertex) == 0 && !vertex.equals(startVertex)) {
+                    graph.addDependency(startVertex, vertex, "Start Dependency");
+                }
+            }
+
+            // Adiciona o vértice End
+            ActivityVertex endVertex = new ActivityVertex("End", "End of process", 0, "", 0, "€");
+            graph.addActivity(endVertex);
+
+            // Conecta o End às atividades finais (sem dependências de saída)
+                for (ActivityVertex vertex : graph.vertices()) {
+                    if (graph.outDegree(vertex) == 0 && !vertex.equals(startVertex) && !vertex.equals(endVertex)) {
+                        graph.addDependency(vertex, endVertex, "End Dependency");
+                    }
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            return graph;
-        }
+        return graph;
+       }
 
         // Método para buscar um vértice por ID dentro do grafo
         private static ActivityVertex findVertexById(ActivityGraph graph, int id) {
