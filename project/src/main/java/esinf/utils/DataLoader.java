@@ -77,10 +77,10 @@ public class DataLoader {
                 }
 
                 String[] values = line.split(";");
-//                // Verificar se há pelo menos duas colunas (id_machine e operationName)
-//                if (isValidLine(values)) {
-//                    continue; // Ignorar linhas incompletas
-//                }
+                // Verificar se há pelo menos duas colunas (id_machine e operationName)
+                if (isValidLine(values)) {
+                    continue; // Ignorar linhas incompletas
+                }
 
                 String id = values[0].trim();
                 String operationName = values[1].trim();
@@ -181,7 +181,7 @@ public class DataLoader {
         return new ProductionTree(root);
     }
 
-    //Sprint3
+    //Sprint3- USEI17
     public static ActivityGraph loadActivityMapGraphFromCSV(String activitiesCsvFilePath) {
         ActivityGraph graph = new ActivityGraph();
         String line;
@@ -251,6 +251,12 @@ public class DataLoader {
 
         return graph;
     }
+
+
+
+
+
+    //==============[Private] Helper methods section ===============
 
     // Metodo para buscar um vértice por ID dentro do grafo
     private static ActivityVertex findVertexById(ActivityGraph graph, String id) {

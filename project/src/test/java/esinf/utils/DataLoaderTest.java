@@ -105,25 +105,22 @@ public class DataLoaderTest extends TestCase {
         assertEquals(14, graph.numVertices());
         assertEquals(18, graph.numEdges());
 
-        // Verificar existência dos vértices
         assertVerticesExist(graph, "Start", "End", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L");
-
-        // Verificar conexões (arestas)
-//        assertEdgesExist(graph,
-//                "Start", "A", "Start", "B",  // Start → A, Start → B
-//                "A", "D",                  // A → D
-//                "D", "E", "D", "F",         // D → E, D → F
-//                "B", "C",                  // B → C
-//                "C", "F",                  // C → F
-//                "E", "G",                  // E → G
-//                "F", "G", "F", "H",         // F → G, F → H
-//                "G", "I", "G", "J", "G", "K",  // G → I, G → J, G → K
-//                "H", "L",                  // H → L
-//                "I", "L",                  // I → L
-//                "K", "L",                  // K → L
-//                "J", "End",                // J → End
-//                "L", "End");               // L → End
-
+        assertEdgesExist(graph,
+                "Start", "A", "Start", "B",  // Start → A, Start → B
+                "A", "D",                  // A → D
+                "D", "E", "D", "F",         // D → E, D → F
+                "B", "C",                  // B → C
+                "C", "F",                  // C → F
+                "E", "G",                  // E → G
+                "F", "G", "F", "H",         // F → G, F → H
+                "G", "I", "G", "J", "G", "K",  // G → I, G → J, G → K
+                "H", "L",                  // H → L
+                "I", "L",                  // I → L
+                "K", "L",                  // K → L
+                "J", "End",                // J → End
+                "L", "End");               // L → End
+        System.out.println("testLoadActivityMapGraphFromCSV()");
         deleteFile(new File("testActivityMapGraph.csv"));
     }
 
@@ -134,23 +131,25 @@ public class DataLoaderTest extends TestCase {
         }
     }
 
-    private void assertEdgesExist(ActivityGraph graph, String... vertexIds) {
-        // Iterando sobre os vértices fornecidos e verificando as arestas entre eles
-        for (int i = 4; i < vertexIds.length - 1; i++) {
-            String startId = vertexIds[i];
-            String endId = vertexIds[i + 1];
+    private void assertEdgesExist(ActivityGraph graph, String... vertexPairs) {
+        if (vertexPairs.length % 2 != 0) {
+            throw new IllegalArgumentException("Vertex pairs must be even (start, end).");
+        }
+
+        // Iterar pelos pares de vértices
+        for (int i = 0; i < vertexPairs.length; i += 2) {
+            String startId = vertexPairs[i];
+            String endId = vertexPairs[i + 1];
 
             // Obter os vértices no grafo
             ActivityVertex start = findVertexById(graph, startId);
             ActivityVertex end = findVertexById(graph, endId);
 
-            // Verifique se a aresta existe apenas na direção correta (start → end)
+            // Verificar se a aresta existe (start → end)
             Edge<ActivityVertex, String> edge = graph.getEdge(start, end);
-
-            // Garantir que a aresta existe na direção certa (start → end), mas não na reversa
             assertNotNull("Edge missing: " + startId + " → " + endId, edge);
 
-            // Verifica se não existe aresta na direção reversa (end → start)
+            // Opcional: Verificar se não há aresta na direção reversa (A → start // B-> start)
             Edge<ActivityVertex, String> reverseEdge = graph.getEdge(end, start);
             assertNull("Unexpected reverse edge: " + endId + " → " + startId, reverseEdge);
         }
