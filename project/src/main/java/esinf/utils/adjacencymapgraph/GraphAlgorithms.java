@@ -180,9 +180,9 @@ public class GraphAlgorithms {
     * Extracts from pathKeys the minimum path between voInf and vdInf
     * The path is constructed from the end to the beginning
     * @param g Graph instance
-    * @param voInf information of the Vertex origin
-    * @param vdInf information of the Vertex destination 
-    * @param pathkeys minimum path vertices keys  
+    * @param vOrig information of the Vertex origin
+    * @param vDest information of the Vertex destination
+    * @param pathKeys minimum path vertices keys
     * @param path stack with the minimum path (correct order)
     */
     protected static<V, E> void getPath(Graph<V, E> g, V vOrig, V vDest, Map<V, V> pathKeys, LinkedList<V> path) {
@@ -258,6 +258,114 @@ public class GraphAlgorithms {
             }
         }
         return true;
+    }
+    public static <V, E> void checkForCircularDependencies(Graph<V, E> graph) {
+        List<List<Edge<V, E>>> cycles = detectCircularDependencies(graph);
+
+        if (cycles.isEmpty()) {
+            System.out.println("No circular dependencies found - project can be scheduled!");
+        } else {
+            System.out.println("Warning: Circular dependencies detected!");
+            for (List<Edge<V, E>> cycle : cycles) {
+                String cycleDescription = describeCycle(graph, cycle);
+                System.out.println(cycleDescription);
+            }
+        }
+    }
+
+
+    /**
+     * Detects and returns all circular dependencies in a project graph
+     * @param graph The project graph where vertices are activities and edges are dependencies
+     * @return List of cycles, where each cycle is represented as a list of edges that form the cycle
+     */
+    public static <V, E> List<List<Edge<V, E>>> detectCircularDependencies(Graph<V, E> graph) {
+        List<List<Edge<V, E>>> cycles = new ArrayList<>();
+        Set<V> visited = new HashSet<>();
+        Set<V> currentPath = new HashSet<>(); // Mantém o caminho atual
+        Map<V, Edge<V, E>> edgeTo = new HashMap<>();
+
+        for (V vertex : graph.vertices()) {
+            if (!visited.contains(vertex)) {
+                dfsDetectCycles(graph, vertex, visited, currentPath, edgeTo, cycles);
+            }
+        }
+
+        return cycles;
+    }
+
+    private static <V, E> void dfsDetectCycles(
+            Graph<V, E> graph,
+            V current,
+            Set<V> visited,
+            Set<V> inStack,
+            Map<V, Edge<V, E>> edgeTo,
+            List<List<Edge<V, E>>> cycles) {
+
+        visited.add(current);
+        inStack.add(current);  // Marcar o vértice no caminho atual
+
+        for (Edge<V, E> edge : graph.outgoingEdges(current)) {
+            V nextActivity = graph.opposite(current, edge);
+
+            // Verificar se há um ciclo direto (a dependência volta para o próprio vértice)
+            if (nextActivity.equals(current)) {
+                List<Edge<V, E>> cycle = new ArrayList<>();
+                cycle.add(edge);
+                cycles.add(cycle);
+                continue;
+            }
+
+            // Se o próximo vértice já estiver no caminho atual (ciclo detectado)
+            if (inStack.contains(nextActivity)) {
+                List<Edge<V, E>> cycle = new ArrayList<>();
+                V cycleVertex = current;
+
+                // Reconstrução do ciclo
+                while (!cycleVertex.equals(nextActivity)) {
+                    Edge<V, E> cycleEdge = edgeTo.get(cycleVertex);
+                    cycle.add(cycleEdge);
+                    cycleVertex = graph.opposite(cycleVertex, cycleEdge);
+                }
+
+                // Adicionar o último edge que fecha o ciclo
+                Edge<V, E> cycleEdge = edgeTo.get(nextActivity);
+                cycle.add(cycleEdge);
+                cycles.add(cycle);
+            }
+
+            // Se o próximo vértice não foi visitado ainda, continue a DFS
+            if (!visited.contains(nextActivity)) {
+                edgeTo.put(nextActivity, edge);
+                dfsDetectCycles(graph, nextActivity, visited, inStack, edgeTo, cycles);
+            }
+        }
+
+        inStack.remove(current);  // Remover o vértice do caminho atual quando terminar a exploração
+    }
+
+    /**
+     * Helper method to get a human-readable representation of a cycle
+     * @param graph The project graph
+     * @param cycle List of edges forming a cycle
+     * @return String representation of the cycle's activities
+     */
+    public static <V, E> String describeCycle(Graph<V, E> graph, List<Edge<V, E>> cycle) {
+        if (cycle.isEmpty()) return "No cycle";
+
+        // Iniciar a descrição do ciclo
+        StringBuilder description = new StringBuilder("Circular Dependency: ");
+        V startVertex = cycle.get(0).getVOrig();
+        description.append("ActivityVertex [ID: ").append(startVertex).append("]");
+
+        // Itera pelas arestas do ciclo, construindo a sequência dos vértices
+        for (Edge<V, E> edge : cycle) {
+            V nextVertex = graph.opposite(startVertex, edge);
+            description.append("  -> ActivityVertex [ID: ").append(nextVertex).append("]");
+            startVertex = nextVertex;
+        }
+
+        return description.toString();
     }
 
     /**

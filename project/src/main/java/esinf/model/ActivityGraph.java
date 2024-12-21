@@ -2,6 +2,9 @@ package esinf.model;
 
 import esinf.utils.adjacencymapgraph.Edge;
 import esinf.utils.adjacencymapgraph.Graph;
+import esinf.utils.adjacencymapgraph.GraphAlgorithms;
+
+import java.util.List;
 
 /**
  * Representa um grafo de atividades, onde cada vértice é uma atividade e as arestas representam as dependências entre elas.
@@ -42,6 +45,38 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
         System.out.println("Vertices: "+ this.numVertices()+
                 "\nEdges: "+ this.numEdges());
     }
+
+    public void circularDependenciesDetection(){
+        GraphAlgorithms.checkForCircularDependencies(this);
+    }
+//    public boolean detectCircularDependencies() {
+//        System.out.println("Verificando dependências circulares...");
+//
+//        // Verifica se o grafo contém ciclos a partir de qualquer vértice
+//        for (ActivityVertex vertex : this.vertices()) {
+//            if (GraphAlgorithms.hasCycle(this, vertex)) {
+//                return true; // Se qualquer vértice resultar em ciclo, retornamos verdadeiro
+//            }
+//        }
+//
+//        return false; // Se nenhum ciclo for encontrado
+//    }
+//
+//
+//    public List<List<Edge<ActivityVertex, String>>> getCircularDependencies() {
+//        List<List<Edge<ActivityVertex, String>>> cycles = GraphAlgorithms.findCircularDependencies(this);
+//
+//        if (cycles.isEmpty()) {
+//            System.out.println("Não há ciclos detectados.");
+//        } else {
+//            System.out.println("Ciclos detectados:");
+//            for (List<Edge<ActivityVertex, String>> cycle : cycles) {
+//                System.out.println(cycle);
+//            }
+//        }
+//
+//        return cycles;
+//    }
 
     /**
      * Retorna uma representação em formato de string do grafo de atividades, incluindo detalhes de cada atividade e as suas respetivas

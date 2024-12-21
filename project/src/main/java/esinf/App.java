@@ -3,6 +3,8 @@ package esinf;
 import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
+import esinf.utils.adjacencymapgraph.Edge;
+import esinf.utils.adjacencymapgraph.GraphAlgorithms;
 
 
 import java.util.*;
@@ -90,8 +92,48 @@ public class App {
         System.out.println("#######################\n");
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
-    }
 
+        System.out.println("====== Sprint3 --- USEI18 - Detect Circular Dependencies between activities on project's graph ======");
+        activityVertexGraph.circularDependenciesDetection();
+
+
+//
+//        ActivityGraph graph = new ActivityGraph();
+//        ActivityVertex start = new ActivityVertex("Start","N/a",0,"N/a",0,"$");
+//        ActivityVertex a = new ActivityVertex("A","Task1",3,"weeks",125.0,"$");
+//        ActivityVertex b = new ActivityVertex("B","Task2",5,"weeks",425.0,"$");
+//        ActivityVertex c = new ActivityVertex("C","Task3",2,"weeks",100.0,"$");
+//        ActivityVertex end = new ActivityVertex("End","N/a",0,"N/a",0,"$");
+//
+//        // Adicionar vértices
+//        graph.addActivity(start);
+//        graph.addActivity(a);
+//        graph.addActivity(b);
+//        graph.addActivity(c);
+//        graph.addActivity(end);
+//
+//// Adicionar arestas (dependências)
+//        graph.addDependency(start, a,"start->a");
+//        graph.addDependency(a, b,"a->b");
+//        graph.addDependency(b, c, "b->c");
+//       // graph.addDependency(c, end, "c->end");
+//
+//// Introduzindo uma dependência circular para testar
+//        graph.addDependency(c, a,"c -> a");  // Cria o ciclo A -> B -> C -> A
+//
+//// Testar a detecção de ciclos
+//        List<List<Edge<ActivityVertex, String>>> cycles = GraphAlgorithms.detectCircularDependencies(graph);
+//        if (!cycles.isEmpty()) {
+//            for (List<Edge<ActivityVertex, String>> cycle : cycles) {
+//                System.out.println("Circular dependency detected:");
+//                for (Edge<ActivityVertex, String> edge : cycle) {
+//                    System.out.println(edge);
+//                }
+//            }
+//        } else {
+//            System.out.println("No circular dependencies detected.");
+//        }
+    }
 
     /**
      * Prints details of the given Factory, including its items and machines.
