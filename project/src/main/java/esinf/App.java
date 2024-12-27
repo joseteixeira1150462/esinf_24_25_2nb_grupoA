@@ -96,6 +96,27 @@ public class App {
         CriticalPathAnalyzer analyzer = new CriticalPathAnalyzer(activityVertexGraph);
         analyzer.calculateCriticalPath();
         System.out.println(analyzer.getDetailedCriticalPathAnalysis());
+        // Perform Bottleneck Analysis
+        System.out.println("\n====== Sprint3 --- USEI23 - Bottleneck Activities Analysis ======");
+        BottleneckAnalyzer bottleneckAnalyzer = new BottleneckAnalyzer(activityVertexGraph);
+
+        // Identify bottlenecks by the number of dependents
+        List<ActivityVertex> dependentBottlenecks = bottleneckAnalyzer.identifyByDependents();
+        System.out.println("### Bottlenecks by Number of Dependents ###");
+        for (ActivityVertex vertex : dependentBottlenecks) {
+            System.out.printf("- Activity: %s (Dependents: %d)%n", vertex.getDescription(), activityVertexGraph.outDegree(vertex));
+        }
+
+        // Identify bottlenecks by path frequency
+        List<ActivityVertex> pathFrequencyBottlenecks = bottleneckAnalyzer.identifyByPathFrequency();
+        System.out.println("\n### Bottlenecks by Path Frequency ###");
+        for (ActivityVertex vertex : pathFrequencyBottlenecks) {
+            System.out.printf("- Activity: %s%n", vertex.getDescription());
+        }
+
+        // Print a comprehensive bottleneck analysis report
+        System.out.println("\nDetailed Bottleneck Analysis:");
+        System.out.println(bottleneckAnalyzer.getBottleneckAnalysis());
 
     }
 
