@@ -90,6 +90,13 @@ public class App {
         System.out.println("#######################\n");
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
+
+        // Update in App.java main method:
+        System.out.println("\n====== Sprint3 --- USEI22 - Critical Path Analysis ======");
+        CriticalPathAnalyzer analyzer = new CriticalPathAnalyzer(activityVertexGraph);
+        analyzer.calculateCriticalPath();
+        System.out.println(analyzer.getDetailedCriticalPathAnalysis());
+
     }
 
 
