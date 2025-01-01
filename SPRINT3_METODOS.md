@@ -207,3 +207,103 @@ Com essas implementações, o sistema está apto a importar dados de um CSV, cri
     void testGraphDetails()
 
 - **test.java.esinf.model.`ActivityVertexTest`** (only Getters and Setters)
+
+
+### **USEI19 - Topological Sort of Project Activities**
+Como utilizador, pretendo realizar uma ordenação topológica das atividades. Este método fornece uma sequência para a execução das atividades, sendo respeitada todas as restrições de dependência.
+
+#### **Descrição do Método**
+A ordenação topológica é realizada utilizando o algoritmo **Kahn's Algorithm**, que verifica se o grafo não é ciclico e retorna uma sequencia topológica. Caso o grafo contenha ciclos, a ordenação topológica não é possível.
+
+#### **Implementação**
+A implementação foi realizada na classe **`GraphAlgorithms`**.
+
+```java
+public static<V,E> boolean topSort(Graph<V,E> g, List<V> topsort){
+
+    Map<V, Integer> degreeIn = new HashMap();
+    Queue<V> queueAux = new LinkedList<V>();
+
+    /*
+     * for (all V vertices in g) {
+     * degreeIn[idxV] = g.inDegree(V)
+     * if (degreeIn[idxV] == 0) Add vertex V to queue-aux }
+     */
+    for (V vertice : g.vertices()) {
+        degreeIn.put(vertice, g.inDegree(vertice));
+        if (g.inDegree(vertice) == 0) {
+            queueAux.add(vertice);
+        }
+    }
+
+    /*
+     * numVerts=0
+     */
+    int numVerts = 0;
+
+    /*
+     * while (!queue-aux is Empty){
+     *     vOrig f remove first vertex from queue-aux
+     *     add vOrig to topsort
+     *     numVerts++
+     *     for (each vAdj of vOrig){
+     *         degreeIn[vAdj]--
+     *         if (degreeIn[vAdj] == 0) add vertex VAdj to queue-aux
+     *     }
+     * }
+     * */
+    while (!queueAux.isEmpty()) {
+        V vOrig = queueAux.poll();
+        topsort.add(vOrig);
+        numVerts++;
+        for (V vAdj : g.adjVertices(vOrig)) {
+            degreeIn.put(vAdj, degreeIn.get(vAdj) - 1);
+            if (degreeIn.get(vAdj) == 0)
+                queueAux.add(vAdj);
+        }
+
+    }
+
+    /*
+     * if (numVerts < g.numVertices()) //Graph has a cycle
+     * return false
+     * return true
+     */
+    if (numVerts < g.numVertices()) {
+        return false;
+    }
+    return true;
+}
+```
+
+#### **Testes Unitários**
+Os testes unitários foram implementados na classe **`GraphAlgorithmsTest2`**, garantindo a validação do método em diferentes cenários. Os seguintes métodos de teste foram desenvolvidos:
+
+```java
+@Test
+public void testTopSortAcyclicGraph() {
+}
+
+@Test
+public void testTopSortCyclicGraph() {
+}
+
+@Test
+public void testTopSortEmptyGraph() {
+}
+
+@Test
+public void testTopSortAcyclicGraphXYZ() {
+}
+
+@Test
+public void testTopSortAcyclicGraphEFGH() {
+}
+
+@Test
+public void testTopSortAcyclicGraphIJKL() {
+}
+
+```
+
+
