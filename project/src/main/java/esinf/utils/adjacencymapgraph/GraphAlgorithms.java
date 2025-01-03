@@ -276,4 +276,151 @@ public class GraphAlgorithms {
 
         return pathrev;
     }
+
+    //US19
+    /**
+     * Topological Sort Algorithm
+     * @param <V> The type of vertices in the graph.
+     * @param <E> The type of edges in the graph.
+     * @param g The directed graph on which to perform the topological sort.
+     * @param topsort A list of vertices in topological order if the graph is acyclic.
+     *        Otherwise, the list may be incomplete, and `isCycle` will be false.
+     * @return A boolean to indicate whether the graph contains a cycle or not.
+     *                If the graph contains a cycle, the topological sort cannot be performed.
+     *
+     *     Complexity:
+     *     Time Complexity: O(V + E), where V is the number of vertices and E is the number of edges in the graph.
+     *     This is because:
+     *     1. Initializing the in-degree map takes O(V).
+     *     2. Processing each vertex in the queue takes O(V).
+     *     3. Iterating over all edges during adjacency list traversal takes O(E).
+     */
+    public static<V,E> boolean topSort(Graph<V,E> g, List<V> topsort){
+
+        Map<V, Integer> degreeIn = new HashMap();
+        Queue<V> queueAux = new LinkedList<V>();
+
+        /*
+         * for (all V vertices in g) {
+         * degreeIn[idxV] = g.inDegree(V)
+         * if (degreeIn[idxV] == 0) Add vertex V to queue-aux }
+         */
+        for (V vertice : g.vertices()) {
+            degreeIn.put(vertice, g.inDegree(vertice));
+            if (g.inDegree(vertice) == 0) {
+                queueAux.add(vertice);
+            }
+        }
+
+        /*
+         * numVerts=0
+         */
+        int numVerts = 0;
+
+        /*
+         * while (!queue-aux is Empty){
+         *     vOrig f remove first vertex from queue-aux
+         *     add vOrig to topsort
+         *     numVerts++
+         *     for (each vAdj of vOrig){
+         *         degreeIn[vAdj]--
+         *         if (degreeIn[vAdj] == 0) add vertex VAdj to queue-aux
+         *     }
+         * }
+         * */
+        while (!queueAux.isEmpty()) {
+            V vOrig = queueAux.poll();
+            topsort.add(vOrig);
+            numVerts++;
+            for (V vAdj : g.adjVertices(vOrig)) {
+                degreeIn.put(vAdj, degreeIn.get(vAdj) - 1);
+                if (degreeIn.get(vAdj) == 0)
+                    queueAux.add(vAdj);
+            }
+
+        }
+
+        /*
+         * if (numVerts < g.numVertices()) //Graph has a cycle
+         * return false
+         * return true
+         */
+        if (numVerts < g.numVertices()) {
+            return false;
+        }
+        return true;
+    }
+
+    //US20
+    /**
+     * Calculate Earliest and Latest Start and Finish Times for all activities in a directed graph.
+     * @param <V> The type of vertices (activities) in the graph.
+     * @param <E> The type of edges (dependencies) in the graph.
+     * @param g The directed graph representing the project.
+     * @param durations A map of vertices to their respective durations.
+     * @return A map containing ES, EF, LS, LF, and Slack for each activity.
+     */
+    public static <V, E> Map<V, Map<String, Integer>> calculateTimes(Graph<V, E> g, Map<V, Integer> durations) {
+
+        Map<V, Map<String, Integer>> result = new HashMap<>();
+
+
+        List<V> topOrder = new ArrayList<V>();
+        boolean isCycle = topSort(g, topOrder);
+
+
+        Map<V, Integer> ES = new HashMap<>();
+        Map<V, Integer> EF = new HashMap<>();
+        for (V v : g.vertices()) {
+            ES.put(v, 0);
+            EF.put(v, 0);
+        }
+
+
+        for (V v : topOrder) {
+            int maxEF = 0;
+            for (V pred : g.incomingVertices(v)) {
+                maxEF = Math.max(maxEF, EF.get(pred));
+            }
+            ES.put(v, maxEF);
+            EF.put(v, maxEF + durations.get(v));
+        }
+
+
+        Map<V, Integer> LS = new HashMap<>();
+        Map<V, Integer> LF = new HashMap<>();
+        int maxEF = topOrder.stream().mapToInt(EF::get).max().orElse(0);
+
+        for (V v : g.vertices()) {
+            LF.put(v, maxEF);
+            LS.put(v, maxEF);
+        }
+
+
+        List<V> reverseOrder = new ArrayList<>(topOrder);
+        Collections.reverse(reverseOrder);
+
+        for (V v : reverseOrder) {
+            int minLS = maxEF;
+            for (V succ : g.adjVertices(v)) {
+                minLS = Math.min(minLS, LS.get(succ));
+            }
+            LF.put(v, minLS);
+            LS.put(v, minLS - durations.get(v));
+        }
+
+
+        for (V v : g.vertices()) {
+            int slack = LS.get(v) - ES.get(v);
+            Map<String, Integer> times = new HashMap<>();
+            times.put("ES", ES.get(v));
+            times.put("EF", EF.get(v));
+            times.put("LS", LS.get(v));
+            times.put("LF", LF.get(v));
+            times.put("Slack", slack);
+            result.put(v, times);
+        }
+
+        return result;
+    }
 }
