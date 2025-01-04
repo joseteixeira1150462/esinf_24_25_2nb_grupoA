@@ -3,6 +3,7 @@ package esinf;
 import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
+import esinf.utils.adjacencymapgraph.GraphAlgorithms;
 
 
 import java.util.*;
@@ -90,6 +91,16 @@ public class App {
         System.out.println("#######################\n");
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
+
+        System.out.println("====== Sprint3 --- USEI19 - Topological Sort from small.project ======");
+        List<ActivityVertex> topsort = new ArrayList<ActivityVertex>();
+        boolean isCycle = GraphAlgorithms.topSort(activityVertexGraph, topsort);
+        StringBuilder buf = new StringBuilder("Topological Sort: ");
+        for (ActivityVertex v : topsort)
+            buf.append(v.getId() + " -> ");
+        buf.delete(buf.length()-4, buf.length());
+        System.out.println(buf);
+        System.out.println("#######################\n");
     }
 
 
