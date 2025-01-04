@@ -359,6 +359,13 @@ public class GraphAlgorithms {
      * @param g The directed graph representing the project.
      * @param durations A map of vertices to their respective durations.
      * @return A map containing ES, EF, LS, LF, and Slack for each activity.
+     * Complexity:
+     *  Time Complexity: O(V + E), where V is the number of vertices and E is the number of edges in the graph.
+     *  This is because:
+     *  1. Topological sorting takes O(V + E).
+     *  2. Calculating Earliest Start and Finish times takes O(V + E).
+     *  3. Calculating Latest Start and Finish times takes O(V + E).
+     *  4. Constructing the result map takes O(V).
      */
     public static <V, E> Map<V, Map<String, Integer>> calculateTimes(Graph<V, E> g, Map<V, Integer> durations) {
 
