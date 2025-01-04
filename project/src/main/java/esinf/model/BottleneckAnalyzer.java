@@ -1,6 +1,5 @@
+//USEI22
 package esinf.model;
-
-
 import esinf.utils.adjacencymapgraph.Edge;
 import java.util.*;
 
@@ -30,6 +29,7 @@ public class BottleneckAnalyzer {
         int maxDependents = 0;
         Map<ActivityVertex, Integer> dependentCounts = new HashMap<>();
 
+        // Itera por todas as atividades no grafo para contar os dependentes
         for (ActivityVertex vertex : graph.vertices()) {
             int outDegree = graph.outDegree(vertex);
             dependentCounts.put(vertex, outDegree);
@@ -114,12 +114,13 @@ public class BottleneckAnalyzer {
         visited.add(current);
         path.add(current);
 
+        // Se chegou ao vértice final, incrementa a frequência de cada atividade no caminho
         if (current.equals(end)) {
-            // Incrementa a frequência de cada atividade no caminho atual
             for (ActivityVertex vertex : path) {
                 pathFrequency.put(vertex, pathFrequency.getOrDefault(vertex, 0) + 1);
             }
         } else {
+            // Continua a busca para os próximos vértices
             for (Edge<ActivityVertex, String> edge : graph.outgoingEdges(current)) {
                 ActivityVertex next = edge.getVDest();
                 if (!visited.contains(next)) {
@@ -128,6 +129,7 @@ public class BottleneckAnalyzer {
             }
         }
 
+        // Remove a atividade do caminho e da lista de visitados após explorar todos os caminhos
         path.remove(path.size() - 1);
         visited.remove(current);
     }

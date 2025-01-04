@@ -3,9 +3,18 @@ package esinf.model;
 import esinf.utils.adjacencymapgraph.Edge;
 import java.util.*;
 
+//USEI22
+/**
+ * Classe responsável por analisar o caminho crítico do projeto no grafo das atividades.
+ * O caminho crítico é composto pelas atividades que não possuem folga (slack) e que
+ * determinam a duração mínima do projeto.
+ */
 public class CriticalPathAnalyzer {
 
-    // Classe que armazena as métricas de cada atividade no grafo
+    /**
+     * Classe que armazena as métricas de cada atividade no grafo.
+     * Contém informações sobre os tempos mais cedo e mais tarde, além da folga.
+     */
     public static class ActivityMetrics {
         public int earliestStart;  // Início mais cedo da atividade
         public int earliestFinish; // Fim mais cedo da atividade
@@ -13,7 +22,12 @@ public class CriticalPathAnalyzer {
         public int latestFinish;   // Fim mais tarde permitido
         public int slack;          // Folga (tempo disponível sem atrasar o projeto)
 
-        // Construtor que inicializa as métricas com valores padrão
+        /**
+         * Construtor que inicializa as métricas com valores padrão.
+         * Define o início mais cedo e fim mais cedo como 0,
+         * o início e fim mais tarde como valores máximos possíveis,
+         * e a folga como 0.
+         */
         public ActivityMetrics() {
             this.earliestStart = 0;
             this.earliestFinish = 0;
@@ -26,20 +40,29 @@ public class CriticalPathAnalyzer {
     private final ActivityGraph graph; // Grafo que representa as atividades do projeto
     private final Map<ActivityVertex, ActivityMetrics> metrics = new HashMap<>();
 
-    // Construtor que recebe o grafo do projeto e inicializa as métricas das atividades
+    /**
+     * Construtor que recebe o grafo do projeto e inicializa as métricas das atividades.
+     * @param graph Grafo das atividades do projeto.
+     */
     public CriticalPathAnalyzer(ActivityGraph graph) {
         this.graph = graph;
         initializeMetrics();
     }
 
-    // Inicializa as métricas para cada atividade no grafo
+    /**
+     * Inicializa as métricas para cada atividade no grafo.
+     */
     private void initializeMetrics() {
         for (ActivityVertex vertex : graph.vertices()) {
             metrics.put(vertex, new ActivityMetrics());
         }
     }
 
-    // Método principal que calcula o caminho crítico do projeto
+    /**
+     * Método principal que calcula o caminho crítico do projeto.
+     * Realiza a ordenação topológica, o cálculo dos tempos mais cedo e mais tarde,
+     * calcula a folga para cada atividade e valida o caminho crítico.
+     */
     public void calculateCriticalPath() {
         List<ActivityVertex> topologicalOrder = topologicalSort(); // Ordenação topológica do grafo
         forwardPass(topologicalOrder);  // Calcula os tempos mais cedo (forward pass)
@@ -48,7 +71,10 @@ public class CriticalPathAnalyzer {
         validateCompleteCriticalPath(); // Valida o caminho crítico completo
     }
 
-    // Ordenação topológica para processar atividades na ordem dos dependentes
+    /**
+     * Ordenação topológica para processar atividades na ordem dos dependentes.
+     * @return Lista das atividades ordenadas topologicamente.
+     */
     private List<ActivityVertex> topologicalSort() {
         List<ActivityVertex> order = new ArrayList<>();
         Map<ActivityVertex, Integer> inDegree = new HashMap<>();
@@ -87,7 +113,10 @@ public class CriticalPathAnalyzer {
         return order;
     }
 
-    // Calcula os tempos mais cedo para cada atividade
+    /**
+     * Calcula os tempos mais cedo para cada atividade, baseando-se nos predecessores.
+     * @param topologicalOrder Lista de atividades ordenadas topologicamente.
+     */
     private void forwardPass(List<ActivityVertex> topologicalOrder) {
         for (ActivityVertex vertex : topologicalOrder) {
             ActivityMetrics currentMetrics = metrics.get(vertex);
@@ -102,7 +131,10 @@ public class CriticalPathAnalyzer {
         }
     }
 
-    // Calcula os tempos mais tarde para cada atividade
+    /**
+     * Calcula os tempos mais tarde para cada atividade, considerando os sucessores.
+     * @param topologicalOrder Lista de atividades ordenadas topologicamente.
+     */
     private void backwardPass(List<ActivityVertex> topologicalOrder) {
         Collections.reverse(topologicalOrder);
 
@@ -131,7 +163,10 @@ public class CriticalPathAnalyzer {
         }
     }
 
-    // Calcula a folga para cada atividade
+    /**
+     * Calcula a folga (slack) para cada atividade.
+     * A folga é a diferença entre o tempo mais tarde de início e o tempo mais cedo de início.
+     */
     private void calculateSlack() {
         for (Map.Entry<ActivityVertex, ActivityMetrics> entry : metrics.entrySet()) {
             ActivityMetrics m = entry.getValue();
@@ -139,7 +174,11 @@ public class CriticalPathAnalyzer {
         }
     }
 
-    // Valida se o caminho crítico é completo e começa/termina corretamente
+    /**
+     * Valida se o caminho crítico é completo e começa/termina corretamente.
+     * @return True se o caminho crítico for válido, false caso contrário.
+     * @throws IllegalStateException Se o caminho crítico não começar ou terminar corretamente.
+     */
     private boolean validateCompleteCriticalPath() {
         List<ActivityVertex> criticalPath = getCriticalPath();
         if (criticalPath.isEmpty()) {
@@ -160,7 +199,10 @@ public class CriticalPathAnalyzer {
         return true;
     }
 
-    // Retorna o caminho crítico (atividades com folga = 0)
+    /**
+     * Retorna o caminho crítico (atividades com folga = 0).
+     * @return Lista de atividades no caminho crítico.
+     */
     public List<ActivityVertex> getCriticalPath() {
         List<ActivityVertex> criticalPath = new ArrayList<>();
         ActivityVertex start = findStartVertex();
@@ -171,7 +213,10 @@ public class CriticalPathAnalyzer {
         return criticalPath;
     }
 
-    // Encontra o vértice inicial (sem predecessores)
+    /**
+     * Encontra o vértice inicial do grafo (sem predecessores).
+     * @return Vértice inicial do grafo.
+     */
     private ActivityVertex findStartVertex() {
         for (ActivityVertex vertex : graph.vertices()) {
             if (graph.inDegree(vertex) == 0) return vertex;
@@ -179,7 +224,10 @@ public class CriticalPathAnalyzer {
         return null;
     }
 
-    // Encontra o vértice final (sem sucessores)
+    /**
+     * Encontra o vértice final do grafo (sem sucessores).
+     * @return Vértice final do grafo.
+     */
     private ActivityVertex findEndVertex() {
         for (ActivityVertex vertex : graph.vertices()) {
             if (graph.outDegree(vertex) == 0) return vertex;
@@ -187,7 +235,13 @@ public class CriticalPathAnalyzer {
         return null;
     }
 
-    // Busca em profundidade para encontrar o caminho crítico
+    /**
+     * Busca em profundidade para encontrar o caminho crítico, baseado na folga.
+     * @param current Atividade atual no caminho.
+     * @param result Lista de atividades no caminho crítico.
+     * @param visited Conjunto de atividades visitadas.
+     * @param currentPath Caminho atual sendo explorado.
+     */
     private void findCriticalPathDFS(ActivityVertex current, List<ActivityVertex> result,
                                      Set<ActivityVertex> visited, List<ActivityVertex> currentPath) {
         visited.add(current);
@@ -211,7 +265,10 @@ public class CriticalPathAnalyzer {
         visited.remove(current);
     }
 
-    // Retorna uma análise detalhada das atividades no caminho crítico
+    /**
+     * Retorna uma análise detalhada das atividades no caminho crítico.
+     * @return String com a análise detalhada.
+     */
     public String getDetailedCriticalPathAnalysis() {
         StringBuilder result = new StringBuilder();
 
@@ -235,7 +292,10 @@ public class CriticalPathAnalyzer {
         return result.toString();
     }
 
-    // Calcula a duração total do projeto (baseado no maior tempo de término)
+    /**
+     * Calcula a duração total do projeto, baseada no maior tempo de término das atividades.
+     * @return Duração total do projeto em unidades de tempo.
+     */
     public int getTotalProjectDuration() {
         int maxFinish = 0;
         for (ActivityMetrics metrics : metrics.values()) {
@@ -246,7 +306,10 @@ public class CriticalPathAnalyzer {
         return maxFinish;
     }
 
-    // Retorna as métricas de todas as atividades
+    /**
+     * Retorna as métricas de todas as atividades.
+     * @return Mapa imutável com as métricas de todas as atividades.
+     */
     public Map<ActivityVertex, ActivityMetrics> getMetrics() {
         return Collections.unmodifiableMap(metrics);
     }
