@@ -431,4 +431,79 @@ public class GraphAlgorithms {
 
         return pathrev;
     }
+
+
+    //US19
+    /**
+     * Topological Sort Algorithm
+     * @param <V> The type of vertices in the graph.
+     * @param <E> The type of edges in the graph.
+     * @param g The directed graph on which to perform the topological sort.
+     * @param topsort A list of vertices in topological order if the graph is acyclic.
+     *        Otherwise, the list may be incomplete, and `isCycle` will be false.
+     * @return A boolean to indicate whether the graph contains a cycle or not.
+     *                If the graph contains a cycle, the topological sort cannot be performed.
+     *
+     *     Complexity:
+     *     Time Complexity: O(V + E), where V is the number of vertices and E is the number of edges in the graph.
+     *     This is because:
+     *     1. Initializing the in-degree map takes O(V).
+     *     2. Processing each vertex in the queue takes O(V).
+     *     3. Iterating over all edges during adjacency list traversal takes O(E).
+     */
+    public static<V,E> boolean topSort(Graph<V,E> g, List<V> topsort){
+
+        Map<V, Integer> degreeIn = new HashMap();
+        Queue<V> queueAux = new LinkedList<V>();
+
+        /*
+         * for (all V vertices in g) {
+         * degreeIn[idxV] = g.inDegree(V)
+         * if (degreeIn[idxV] == 0) Add vertex V to queue-aux }
+         */
+        for (V vertice : g.vertices()) {
+            degreeIn.put(vertice, g.inDegree(vertice));
+            if (g.inDegree(vertice) == 0) {
+                queueAux.add(vertice);
+            }
+        }
+
+        /*
+         * numVerts=0
+         */
+        int numVerts = 0;
+
+        /*
+         * while (!queue-aux is Empty){
+         *     vOrig f remove first vertex from queue-aux
+         *     add vOrig to topsort
+         *     numVerts++
+         *     for (each vAdj of vOrig){
+         *         degreeIn[vAdj]--
+         *         if (degreeIn[vAdj] == 0) add vertex VAdj to queue-aux
+         *     }
+         * }
+         * */
+        while (!queueAux.isEmpty()) {
+            V vOrig = queueAux.poll();
+            topsort.add(vOrig);
+            numVerts++;
+            for (V vAdj : g.adjVertices(vOrig)) {
+                degreeIn.put(vAdj, degreeIn.get(vAdj) - 1);
+                if (degreeIn.get(vAdj) == 0)
+                    queueAux.add(vAdj);
+            }
+
+        }
+
+        /*
+         * if (numVerts < g.numVertices()) //Graph has a cycle
+         * return false
+         * return true
+         */
+        if (numVerts < g.numVertices()) {
+            return false;
+        }
+        return true;
+    }
 }
