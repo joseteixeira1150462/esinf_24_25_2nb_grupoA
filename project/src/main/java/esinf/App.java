@@ -94,7 +94,9 @@ public class App {
         System.out.println(activityVertexGraph);
 
         System.out.println("====== Sprint3 --- USEI18 - Detect Circular Dependencies between activities on project's graph ======");
-        activityVertexGraph.circularDependenciesDetection();
+//        System.out.println(GraphAlgorithms.detectCircularDependencies(activityVertexGraph));
+//        System.out.println(GraphAlgorithms.describeCycle(activityVertexGraph, cycle));
+        GraphAlgorithms.checkForCircularDependencies(activityVertexGraph);
 
 
 //

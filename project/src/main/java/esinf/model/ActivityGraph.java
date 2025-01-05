@@ -46,9 +46,10 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
                 "\nEdges: "+ this.numEdges());
     }
 
-    public void circularDependenciesDetection(){
-        GraphAlgorithms.checkForCircularDependencies(this);
-    }
+//    public void circularDependenciesDetection(){
+//        GraphAlgorithms.describeCycle(this, );
+//
+//    }
 //    public boolean detectCircularDependencies() {
 //        System.out.println("Verificando dependências circulares...");
 //
