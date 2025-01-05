@@ -510,11 +510,16 @@ This code provides methods to detect circular dependencies in a directed graph r
 - **Unit tests : 0 tests**
 ---
 ### **USEI19 - Topological Sort of Project Activities**
+
+### Autor : DIOGO MARQUES 1190516
+
 Como utilizador, pretendo realizar uma ordenação topológica das atividades. Este método fornece uma sequência para a execução das atividades, sendo respeitada todas as restrições de dependência.
 
 #### **Descrição do Método**
 A ordenação topológica é realizada utilizando o algoritmo **Kahn's Algorithm**, que verifica se o grafo não é ciclico e retorna uma sequencia topológica. Caso o grafo contenha ciclos, a ordenação topológica não é possível.
 
+#### **Complexidade**
+Complexidade: O(V + E), onde V é o número de vértices e E é o número de arestas no grafo
 #### **Implementação**
 A implementação foi realizada na classe **`GraphAlgorithms`**.
 
@@ -604,6 +609,94 @@ public void testTopSortAcyclicGraphEFGH() {
 public void testTopSortAcyclicGraphIJKL() {
 }
 
+```
+
+### **USEI20 - Calculate Earliest and Latest Start and Finish Times**
+
+### Autor : DIOGO MARQUES 1190516
+
+Como utilizador, pretendo calcular os tempos de início mais cedo (ES) e de término mais tarde (LF) para cada atividade, com base nas dependências.
+Isto ajudará a identificar a folga para atividades não críticas e a garantir um planeamento preciso do cronograma.
+
+#### **Complexidade**
+Complexidade: O(V + E), onde V é o número de vértices e E é o número de arestas no grafo. Isso ocorre porque: 1. A ordenação topológica leva O(V + E). 2. O cálculo dos tempos de início mais cedo (ES) e término mais cedo (EF) leva O(V + E). 3. O cálculo dos tempos de início mais tarde (LS) e término mais tarde (LF) também leva O(V + E). 4. A construção do mapa de resultados tem complexidade O(V)
+
+#### **Descrição do Método**
+O método `calculateTimes` calcula os tempos de início mais cedo (ES), término mais cedo (EF), início mais tarde (LS), término mais tarde (LF) e slack para cada atividade em um grafo dirigido, considerando suas dependências. Ele utiliza ordenação topológica para garantir a execução das atividades na ordem correta, calcula os tempos com base nas dependências e determina o slack de cada atividade. O resultado é um mapa com os tempos e o slack de cada atividade no projeto.
+
+```java
+public static <V, E> Map<V, Map<String, Integer>> calculateTimes(Graph<V, E> g, Map<V, Integer> durations) {
+
+        Map<V, Map<String, Integer>> result = new HashMap<>();
+
+
+        List<V> topOrder = new ArrayList<V>();
+        boolean isCycle = topSort(g, topOrder);
+
+
+        Map<V, Integer> ES = new HashMap<>();
+        Map<V, Integer> EF = new HashMap<>();
+        for (V v : g.vertices()) {
+            ES.put(v, 0);
+            EF.put(v, 0);
+        }
+
+
+        for (V v : topOrder) {
+            int maxEF = 0;
+            for (V pred : g.incomingVertices(v)) {
+                maxEF = Math.max(maxEF, EF.get(pred));
+            }
+            ES.put(v, maxEF);
+            EF.put(v, maxEF + durations.get(v));
+        }
+
+
+        Map<V, Integer> LS = new HashMap<>();
+        Map<V, Integer> LF = new HashMap<>();
+        int maxEF = topOrder.stream().mapToInt(EF::get).max().orElse(0);
+
+        for (V v : g.vertices()) {
+            LF.put(v, maxEF);
+            LS.put(v, maxEF);
+        }
+
+
+        List<V> reverseOrder = new ArrayList<>(topOrder);
+        Collections.reverse(reverseOrder);
+
+        for (V v : reverseOrder) {
+            int minLS = maxEF;
+            for (V succ : g.adjVertices(v)) {
+                minLS = Math.min(minLS, LS.get(succ));
+            }
+            LF.put(v, minLS);
+            LS.put(v, minLS - durations.get(v));
+        }
+
+
+        for (V v : g.vertices()) {
+            int slack = LS.get(v) - ES.get(v);
+            Map<String, Integer> times = new HashMap<>();
+            times.put("ES", ES.get(v));
+            times.put("EF", EF.get(v));
+            times.put("LS", LS.get(v));
+            times.put("LF", LF.get(v));
+            times.put("Slack", slack);
+            result.put(v, times);
+        }
+
+        return result;
+    }
+
+```
+#### **Testes Unitários**
+Os testes unitários foram implementados na classe **`GraphAlgorithmsTest3`**, garantindo a validação do método. O seguinte método de teste foi desenvolvido:
+
+```java
+@Test
+public void testCalculateTimes() {
+}
 ```
 
 
