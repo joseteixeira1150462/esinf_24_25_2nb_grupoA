@@ -939,4 +939,6 @@ public void testCalculateTimes() {
 }
 ```
 
+![Diagrama SPRINT3](esinf.jpg)
+
 
