@@ -196,7 +196,7 @@ public class DataLoader {
                 String[] fields = line.split(",");
 
                 // Criação do vértice de atividade
-                String id = fields[0];
+                String id = fields[0].trim();
                 String description = fields[1];
                 int duration = Integer.parseInt(fields[2]);
                 String durationUnit = fields[3];
@@ -210,11 +210,9 @@ public class DataLoader {
                 for (int i = 5; i < fields.length; i++) {
                     if (!fields[i].isEmpty()) {
                         String dependenciesField = fields[i];
-
                         if (dependenciesField.startsWith("\"") && dependenciesField.endsWith("\"")) {
                             dependenciesField = dependenciesField.substring(1, dependenciesField.length() - 1);
                         }
-
                         String[] dependencies = dependenciesField.split(",");
                         for (String dependencyId : dependencies) {
                             dependencyId = dependencyId.trim().replace("\"", "");
@@ -252,21 +250,19 @@ public class DataLoader {
         return graph;
     }
 
-
-
-
-
     //==============[Private] Helper methods section ===============
 
-    // Metodo para buscar um vértice por ID dentro do grafo
+
     private static ActivityVertex findVertexById(ActivityGraph graph, String id) {
+        // Obtém o Iterator
         for (ActivityVertex vertex : graph.vertices()) {
             if (vertex.getId().equals(id)) {
-                return vertex;
+                return vertex;  // Retorna o vértice encontrado
             }
         }
-        return null; // Retorna null se não encontrar o vértice com o ID
+        return null;  // Retorna null se não encontrar o vértice
     }
+
 
 
     private static double parseQuantity(String value) {

@@ -152,6 +152,23 @@ public class Graph<V,E> implements GraphInterface<V,E> {
         return incomingEdges;
     }
 
+    public Iterable<V> incomingVertices(V vert){
+
+        if (!validVertex(vert))
+            Collections.emptyList();
+
+        List<V> incomingVertices = new ArrayList<>();
+        for (Vertex<V, E> vertex : vertices.values()) {
+            for (Edge<V, E> edge : vertex.getAllOutEdges()) {
+                if (edge.getVDest().equals(vert)) {
+                    incomingVertices.add(edge.getVOrig());
+                }
+            }
+        }
+
+        return incomingVertices;
+    }
+
     public boolean insertVertex(V vert){
          
         if (validVertex(vert)) 
