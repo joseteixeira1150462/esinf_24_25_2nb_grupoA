@@ -3,6 +3,7 @@ package esinf;
 import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
+import esinf.utils.adjacencymapgraph.Edge;
 import esinf.utils.adjacencymapgraph.GraphAlgorithms;
 
 
@@ -92,6 +93,15 @@ public class App {
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
 
+
+      
+       System.out.println("====== Sprint3 --- USEI18 - Detect Circular Dependencies between activities on project's graph ======");
+//        System.out.println(GraphAlgorithms.detectCircularDependencies(activityVertexGraph));
+//        System.out.println(GraphAlgorithms.describeCycle(activityVertexGraph, cycle));
+        GraphAlgorithms.checkForCircularDependencies(activityVertexGraph);
+
+
+
         System.out.println("====== Sprint3 --- USEI19 - Topological Sort from small.project ======");
         List<ActivityVertex> topsort = new ArrayList<ActivityVertex>();
         boolean isCycle = GraphAlgorithms.topSort(activityVertexGraph, topsort);
@@ -101,6 +111,7 @@ public class App {
         buf.delete(buf.length()-4, buf.length());
         System.out.println(buf);
         System.out.println("#######################\n");
+
 
         System.out.println("====== Sprint3 --- USEI20 - Calculate Earliest and Latest Start and Finish Times from activities.csv ======");
         Map<ActivityVertex, Integer> durations = new HashMap<>();
@@ -116,6 +127,9 @@ public class App {
             }
         }
     }
+
+
+   
 
 
 
