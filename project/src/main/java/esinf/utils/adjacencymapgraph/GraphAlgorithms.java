@@ -432,7 +432,6 @@ public class GraphAlgorithms {
         return pathrev;
     }
 
-
     //US19
     /**
      * Topological Sort Algorithm
@@ -505,5 +504,86 @@ public class GraphAlgorithms {
             return false;
         }
         return true;
+    }
+
+
+    //US20
+    /**
+     * Calculate Earliest and Latest Start and Finish Times for all activities in a directed graph.
+     * @param <V> The type of vertices (activities) in the graph.
+     * @param <E> The type of edges (dependencies) in the graph.
+     * @param g The directed graph representing the project.
+     * @param durations A map of vertices to their respective durations.
+     * @return A map containing ES, EF, LS, LF, and Slack for each activity.
+     * Complexity:
+     *  Time Complexity: O(V + E), where V is the number of vertices and E is the number of edges in the graph.
+     *  This is because:
+     *  1. Topological sorting takes O(V + E).
+     *  2. Calculating Earliest Start and Finish times takes O(V + E).
+     *  3. Calculating Latest Start and Finish times takes O(V + E).
+     *  4. Constructing the result map takes O(V).
+     */
+    public static <V, E> Map<V, Map<String, Integer>> calculateTimes(Graph<V, E> g, Map<V, Integer> durations) {
+
+        Map<V, Map<String, Integer>> result = new HashMap<>();
+
+
+        List<V> topOrder = new ArrayList<V>();
+        boolean isCycle = topSort(g, topOrder);
+
+
+        Map<V, Integer> ES = new HashMap<>();
+        Map<V, Integer> EF = new HashMap<>();
+        for (V v : g.vertices()) {
+            ES.put(v, 0);
+            EF.put(v, 0);
+        }
+
+
+        for (V v : topOrder) {
+            int maxEF = 0;
+            for (V pred : g.incomingVertices(v)) {
+                maxEF = Math.max(maxEF, EF.get(pred));
+            }
+            ES.put(v, maxEF);
+            EF.put(v, maxEF + durations.get(v));
+        }
+
+
+        Map<V, Integer> LS = new HashMap<>();
+        Map<V, Integer> LF = new HashMap<>();
+        int maxEF = topOrder.stream().mapToInt(EF::get).max().orElse(0);
+
+        for (V v : g.vertices()) {
+            LF.put(v, maxEF);
+            LS.put(v, maxEF);
+        }
+
+
+        List<V> reverseOrder = new ArrayList<>(topOrder);
+        Collections.reverse(reverseOrder);
+
+        for (V v : reverseOrder) {
+            int minLS = maxEF;
+            for (V succ : g.adjVertices(v)) {
+                minLS = Math.min(minLS, LS.get(succ));
+            }
+            LF.put(v, minLS);
+            LS.put(v, minLS - durations.get(v));
+        }
+
+
+        for (V v : g.vertices()) {
+            int slack = LS.get(v) - ES.get(v);
+            Map<String, Integer> times = new HashMap<>();
+            times.put("ES", ES.get(v));
+            times.put("EF", EF.get(v));
+            times.put("LS", LS.get(v));
+            times.put("LF", LF.get(v));
+            times.put("Slack", slack);
+            result.put(v, times);
+        }
+
+        return result;
     }
 }
