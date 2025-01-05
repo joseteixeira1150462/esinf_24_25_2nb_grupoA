@@ -2,6 +2,9 @@ package esinf.model;
 
 import esinf.utils.adjacencymapgraph.Edge;
 import esinf.utils.adjacencymapgraph.Graph;
+import esinf.utils.adjacencymapgraph.GraphAlgorithms;
+
+import java.util.List;
 
 /**
  * Representa um grafo de atividades, onde cada vértice é uma atividade e as arestas representam as dependências entre elas.
@@ -43,6 +46,39 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
                 "\nEdges: "+ this.numEdges());
     }
 
+//    public void circularDependenciesDetection(){
+//        GraphAlgorithms.describeCycle(this, );
+//
+//    }
+//    public boolean detectCircularDependencies() {
+//        System.out.println("Verificando dependências circulares...");
+//
+//        // Verifica se o grafo contém ciclos a partir de qualquer vértice
+//        for (ActivityVertex vertex : this.vertices()) {
+//            if (GraphAlgorithms.hasCycle(this, vertex)) {
+//                return true; // Se qualquer vértice resultar em ciclo, retornamos verdadeiro
+//            }
+//        }
+//
+//        return false; // Se nenhum ciclo for encontrado
+//    }
+//
+//
+//    public List<List<Edge<ActivityVertex, String>>> getCircularDependencies() {
+//        List<List<Edge<ActivityVertex, String>>> cycles = GraphAlgorithms.findCircularDependencies(this);
+//
+//        if (cycles.isEmpty()) {
+//            System.out.println("Não há ciclos detectados.");
+//        } else {
+//            System.out.println("Ciclos detectados:");
+//            for (List<Edge<ActivityVertex, String>> cycle : cycles) {
+//                System.out.println(cycle);
+//            }
+//        }
+//
+//        return cycles;
+//    }
+
     /**
      * Retorna uma representação em formato de string do grafo de atividades, incluindo detalhes de cada atividade e as suas respetivas
      * dependências, caso existam.
@@ -73,6 +109,7 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
                 sb.append("    ").append(blueColor).append("<- Dependency Activity [ID: ").append(source.getId())
                         .append(", Description: ").append(source.getDescription())
                         .append(", Cost: ").append(source.getCost())
+                        .append(" ").append(vertex.getCostUnit())
                         .append("]").append(resetColor).append("\n");
                 hasIncoming = true;
             }
@@ -83,12 +120,13 @@ public class ActivityGraph extends Graph<ActivityVertex, String> {
             // Mostrar dependências de saída
             boolean hasOutgoing = false;
             for (Edge<ActivityVertex, String> edge : this.outgoingEdges(vertex)) {
-                ActivityVertex dest = (ActivityVertex) edge.getVDest();
+                ActivityVertex dest = edge.getVDest();
                 // Incluindo o custo na label da aresta
                 sb.append("    ").append(yellowColor).append("-> Dependency Activity [ID: ").append(dest.getId())
                         .append(", Description: ").append(dest.getDescription())
-                        .append(", Cost: ").append(dest.getCost())  // Aqui é onde você exibe o custo da aresta
-                        .append("]").append(resetColor).append("\n");
+                        .append(", Cost: ").append(dest.getCost())
+                        .append(" ").append(vertex.getCostUnit()).append("]")
+                        .append(resetColor).append("\n");
                 hasOutgoing = true;
             }
             if (!hasOutgoing) {

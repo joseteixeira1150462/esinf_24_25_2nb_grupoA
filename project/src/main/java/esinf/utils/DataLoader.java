@@ -77,10 +77,10 @@ public class DataLoader {
                 }
 
                 String[] values = line.split(";");
-//                // Verificar se há pelo menos duas colunas (id_machine e operationName)
-//                if (isValidLine(values)) {
-//                    continue; // Ignorar linhas incompletas
-//                }
+                // Verificar se há pelo menos duas colunas (id_machine e operationName)
+                if (isValidLine(values)) {
+                    continue; // Ignorar linhas incompletas
+                }
 
                 String id = values[0].trim();
                 String operationName = values[1].trim();
@@ -181,39 +181,68 @@ public class DataLoader {
         return new ProductionTree(root);
     }
 
-    //Sprint3
+    //Sprint3- USEI17
     public static ActivityGraph loadActivityMapGraphFromCSV(String activitiesCsvFilePath) {
         ActivityGraph graph = new ActivityGraph();
         String line;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                String[] fields = line.split(";");
+        // Adiciona o vértice Start
+        ActivityVertex startVertex = new ActivityVertex("Start", "Start of process", 0, "", 0, "€");
+        graph.addActivity(startVertex);
 
-                // Lê os dados da atividade
-                int id = Integer.parseInt(fields[0]); // Lê o act_id
+        try (BufferedReader br = new BufferedReader(new FileReader(activitiesCsvFilePath))) {
+            br.readLine(); // Ignora o cabeçalho
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
+
+                // Criação do vértice de atividade
+                String id = fields[0].trim();
                 String description = fields[1];
                 int duration = Integer.parseInt(fields[2]);
                 String durationUnit = fields[3];
                 double cost = Double.parseDouble(fields[4]);
-                String costUnit = fields[5];
+                String costUnit = "€";
 
-                // Cria o vértice de atividade com os dados do CSV e adiciona a actividade
                 ActivityVertex activity = new ActivityVertex(id, description, duration, durationUnit, cost, costUnit);
                 graph.addActivity(activity);
 
-                // Lê as dependências (se existirem)
-                for (int i = 6; i < fields.length; i++) {
+                // Lê e adiciona dependências
+                for (int i = 5; i < fields.length; i++) {
                     if (!fields[i].isEmpty()) {
-                        int dependencyId = Integer.parseInt(fields[i]);
-                        ActivityVertex dependency = findVertexById(graph, dependencyId); // Busca o vértice de dependência
-                        if (dependency != null) {
-                            graph.addDependency(dependency, activity, "Dependency Activity");  // Usa o método addDependency
+                        String dependenciesField = fields[i];
+                        if (dependenciesField.startsWith("\"") && dependenciesField.endsWith("\"")) {
+                            dependenciesField = dependenciesField.substring(1, dependenciesField.length() - 1);
+                        }
+                        String[] dependencies = dependenciesField.split(",");
+                        for (String dependencyId : dependencies) {
+                            dependencyId = dependencyId.trim().replace("\"", "");
+                            ActivityVertex dependency = findVertexById(graph, dependencyId);
+                            if (dependency != null) {
+                                graph.addDependency(dependency, activity, "Dependency Activity");
+                            }
                         }
                     }
                 }
             }
+
+            // Conecta o Start às atividades iniciais (sem dependências de entrada)
+            for (ActivityVertex vertex : graph.vertices()) {
+                if (graph.inDegree(vertex) == 0 && !vertex.equals(startVertex)) {
+                    graph.addDependency(startVertex, vertex, "Start Dependency");
+                }
+            }
+
+            // Adiciona o vértice End
+            ActivityVertex endVertex = new ActivityVertex("End", "End of process", 0, "", 0, "€");
+            graph.addActivity(endVertex);
+
+            // Conecta o End às atividades finais (sem dependências de saída)
+            for (ActivityVertex vertex : graph.vertices()) {
+                if (graph.outDegree(vertex) == 0 && !vertex.equals(startVertex) && !vertex.equals(endVertex)) {
+                    graph.addDependency(vertex, endVertex, "End Dependency");
+                }
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -221,15 +250,19 @@ public class DataLoader {
         return graph;
     }
 
-    // Metodo para buscar um vértice por ID dentro do grafo
-    private static ActivityVertex findVertexById(ActivityGraph graph, int id) {
+    //==============[Private] Helper methods section ===============
+
+
+    private static ActivityVertex findVertexById(ActivityGraph graph, String id) {
+        // Obtém o Iterator
         for (ActivityVertex vertex : graph.vertices()) {
-            if (vertex.getId() == id) {
-                return vertex;
+            if (vertex.getId().equals(id)) {
+                return vertex;  // Retorna o vértice encontrado
             }
         }
-        return null; // Retorna null se não encontrar o vértice com o ID
+        return null;  // Retorna null se não encontrar o vértice
     }
+
 
 
     private static double parseQuantity(String value) {

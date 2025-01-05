@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public class ActivityVertex{
 
-    private int id;            // ID da atividade
+    private String id;            // ID da atividade
     private String description;   // Descrição da atividade
     private int duration;         // Duração da atividade
     private String durationUnit;  // Unidade de duração (dias, horas, etc.)
@@ -31,7 +31,7 @@ public class ActivityVertex{
      * @param cost Custo total da atividade.
      * @param costUnit Unidade monetária do custo (exemplo: USD, EUR).
      */
-    public ActivityVertex(int id, String description, int duration, String durationUnit, double cost, String costUnit) {
+    public ActivityVertex(String id, String description, int duration, String durationUnit, double cost, String costUnit) {
         this.id = id;
         this.description = description;
         this.duration = duration;
@@ -45,7 +45,7 @@ public class ActivityVertex{
      *
      * @return O ID da atividade.
      */
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -54,7 +54,7 @@ public class ActivityVertex{
      *
      * @param id O novo ID da atividade.
      */
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -3,6 +3,8 @@ package esinf;
 import esinf.model.*;
 import esinf.utils.DataLoader;
 import esinf.utils.Pair;
+import esinf.utils.adjacencymapgraph.Edge;
+import esinf.utils.adjacencymapgraph.GraphAlgorithms;
 
 
 import java.util.*;
@@ -34,7 +36,7 @@ public class App {
 
   //  private static final String BILL_OF_OPERATIONS_CSV_FILE_PATH = "project/src/dataFiles/boo_v2.csv";
 
-    private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/activities_v0.csv";
+    private static final String ACTIVITIES_CSV_FILE_PATH = "project/src/dataFiles/small_project.csv";
 
     /**
      * The main method serves as the entry point of the application.
@@ -90,7 +92,73 @@ public class App {
         System.out.println("#######################\n");
         System.out.println("******* Activity Graph (Homogeneous and Directional) *******\n");
         System.out.println(activityVertexGraph);
+
+        // Update in App.java main method:
+        System.out.println("\n====== Sprint3 --- USEI22 - Critical Path Analysis ======");
+        CriticalPathAnalyzer analyzer = new CriticalPathAnalyzer(activityVertexGraph);
+        analyzer.calculateCriticalPath();
+        System.out.println(analyzer.getDetailedCriticalPathAnalysis());
+        // Perform Bottleneck Analysis
+        System.out.println("\n====== Sprint3 --- USEI23 - Bottleneck Activities Analysis ======");
+        BottleneckAnalyzer bottleneckAnalyzer = new BottleneckAnalyzer(activityVertexGraph);
+
+        // Identify bottlenecks by the number of dependents
+        List<ActivityVertex> dependentBottlenecks = bottleneckAnalyzer.identifyByDependents();
+        System.out.println("### Bottlenecks by Number of Dependents ###");
+        for (ActivityVertex vertex : dependentBottlenecks) {
+            System.out.printf("- Activity: %s (Dependents: %d)%n", vertex.getDescription(), activityVertexGraph.outDegree(vertex));
+        }
+
+        // Identify bottlenecks by path frequency
+        List<ActivityVertex> pathFrequencyBottlenecks = bottleneckAnalyzer.identifyByPathFrequency();
+        System.out.println("\n### Bottlenecks by Path Frequency ###");
+        for (ActivityVertex vertex : pathFrequencyBottlenecks) {
+            System.out.printf("- Activity: %s%n", vertex.getDescription());
+        }
+
+        // Print a comprehensive bottleneck analysis report
+        System.out.println("\nDetailed Bottleneck Analysis:");
+        System.out.println(bottleneckAnalyzer.getBottleneckAnalysis());
+
+
+      
+       System.out.println("====== Sprint3 --- USEI18 - Detect Circular Dependencies between activities on project's graph ======");
+//        System.out.println(GraphAlgorithms.detectCircularDependencies(activityVertexGraph));
+//        System.out.println(GraphAlgorithms.describeCycle(activityVertexGraph, cycle));
+        GraphAlgorithms.checkForCircularDependencies(activityVertexGraph);
+
+
+
+        System.out.println("====== Sprint3 --- USEI19 - Topological Sort from small.project ======");
+        List<ActivityVertex> topsort = new ArrayList<ActivityVertex>();
+        boolean isCycle = GraphAlgorithms.topSort(activityVertexGraph, topsort);
+        StringBuilder buf = new StringBuilder("Topological Sort: ");
+        for (ActivityVertex v : topsort)
+            buf.append(v.getId() + " -> ");
+        buf.delete(buf.length()-4, buf.length());
+        System.out.println(buf);
+        System.out.println("#######################\n");
+
+
+        System.out.println("====== Sprint3 --- USEI20 - Calculate Earliest and Latest Start and Finish Times from activities.csv ======");
+        Map<ActivityVertex, Integer> durations = new HashMap<>();
+        for (ActivityVertex v : activityVertexGraph.vertices())
+            durations.put(v, v.getDuration());
+
+        Map<ActivityVertex, Map<String, Integer>> times = GraphAlgorithms.calculateTimes(activityVertexGraph, durations);
+
+        for (ActivityVertex v : topsort) {
+            System.out.println("Vertice " + v.getId());
+            for (Map.Entry<String, Integer> time : times.get(v).entrySet()) {
+                System.out.println("  " + time.getKey() + " = " + time.getValue());
+            }
+        }
+
     }
+
+
+   
+
 
 
     /**

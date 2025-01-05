@@ -20,9 +20,9 @@ public class ActivityGraphTest {
     void setUp() {
         graph = new ActivityGraph();
 
-        activity1 = new ActivityVertex(1, "Start", 2, "hours", 100, "USD");
-        activity2 = new ActivityVertex(2, "Intermediate", 3, "hours", 150, "USD");
-        activity3 = new ActivityVertex(3, "End", 1, "hour", 50, "USD");
+        activity1 = new ActivityVertex("A", "Start", 2, "hours", 100, "USD");
+        activity2 = new ActivityVertex("B", "Intermediate", 3, "hours", 150, "USD");
+        activity3 = new ActivityVertex("C", "End", 1, "hour", 50, "USD");
     }
 
     @Test
