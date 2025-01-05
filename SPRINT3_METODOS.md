@@ -192,6 +192,8 @@ Como utilizador, pretendo importar dados de um arquivo CSV e criar um grafo PERT
         }
 Com essas implementações, o sistema está apto a importar dados de um CSV, criar os vértices e as arestas necessárias, e estruturar o grafo PERT-CPM de maneira eficiente.
 
+
+
 ### Análise de Complexidade: `loadActivityMapGraphFromCSV`
 
 ### Operações e Complexidades
@@ -299,6 +301,15 @@ Com essas otimizações, a complexidade seria reduzida para:
     void testGraphDetails()
 
 - **test.java.esinf.model.`ActivityVertexTest`** (only Getters and Setters)
+- **test.java.esinf.utils.`DataLoaderTest`**
+ ```java
+    @Test
+void testLoadActivityMapGraphFromCSV();
+private void assertVerticesExist(ActivityGraph graph, String... vertexIds); //aux method
+private void assertEdgesExist(ActivityGraph graph, String... vertexPairs); //aux method
+private ActivityVertex findVertexById(ActivityGraph graph, String id); //aux method
+ ```  
+    
 ---
 ### **USEI18 - Detect Circular Dependencies on Project Activities**
 ### Author : JOSÉ TEIXEIRA 1150462
@@ -582,7 +593,7 @@ public static<V,E> boolean topSort(Graph<V,E> g, List<V> topsort){
 ```
 
 #### **Testes Unitários**
-Os testes unitários foram implementados na classe **`GraphAlgorithmsTest2`**, garantindo a validação do método em diferentes cenários. Os seguintes métodos de teste foram desenvolvidos:
+Os testes unitários foram implementados na classe **`ActivityGraphAlgorithmsTest`**, garantindo a validação do método em diferentes cenários. Os seguintes métodos de teste foram desenvolvidos:
 
 ```java
 @Test
@@ -691,7 +702,7 @@ public static <V, E> Map<V, Map<String, Integer>> calculateTimes(Graph<V, E> g, 
 
 ```
 #### **Testes Unitários**
-Os testes unitários foram implementados na classe **`GraphAlgorithmsTest3`**, garantindo a validação do método. O seguinte método de teste foi desenvolvido:
+Os testes unitários foram implementados na classe **`ActivityGraphAlgorithmsTest`**, garantindo a validação do método. O seguinte método de teste foi desenvolvido:
 
 ```java
 @Test
